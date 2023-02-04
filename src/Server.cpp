@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <stdlib.h>
+#include <string.h>
 
 using namespace std;
 
@@ -51,7 +52,7 @@ void Server::accepter() {
 }
 
 void Server::reader() {
-	char buffer[512];
+	uint8_t buffer[512];
 	
 	while(1) {
 		this_thread::sleep_for(chrono::milliseconds(10));
@@ -59,12 +60,10 @@ void Server::reader() {
 		for (auto client : clients) {
 			int size = recv(client.get_descriptor(), buffer, sizeof(buffer), MSG_DONTWAIT);
 			if (size > 0) {
-				for (int i = 0; i < size; i++) {
-					printf("%c", buffer[i]);
+				if (!client.add_packet(buffer, size)) {
+					printf("Can not atach packet\r\n");	
 				}
-				printf("\r\n");
 			}
-	
 		}
 		clients_mutex.unlock();
 	}

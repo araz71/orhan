@@ -1,3 +1,6 @@
+#ifndef _SERVER_H_
+#define _SERVER_H_
+
 #include "Client.h"
 
 #include <thread>
@@ -24,3 +27,5 @@ class Server {
  public:
 	Server(uint16_t port_number);
 };
+
+#endif

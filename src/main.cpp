@@ -6,8 +6,10 @@
 using namespace std;
 
 int main() {
-	Server orhan(9000);	
+	const uint8_t port = 9000;
+	Server orhan(port);
 
+	printf("Orhan started on port %d\r\n", port);
 	while (1) {
 	
 	}	
