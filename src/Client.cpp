@@ -7,7 +7,7 @@ Client::Client(const int socket_desctiptor, const uint32_t ip_address) :
 }
 
 void Client::set_serial_number(const uint32_t serial_number) {
-	serial_number = serial_number;
+	Client::serial_number = serial_number;
 }
 
 uint32_t Client::get_serial_number() {
@@ -22,6 +22,10 @@ time_t Client::get_last_communication_timestamp() {
 	return last_communication_timestamp;
 }
 
-uint32_t get_ip_address() {
+uint32_t Client::get_ip_address() {
 	return ip_address;
+}
+
+int Client::get_descriptor() {
+	return socket_desctiptor;
 }

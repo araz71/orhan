@@ -1,3 +1,5 @@
+#include "Client.h"
+
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -12,16 +14,34 @@
 
 using namespace std;
 
-vector<int> client_descriptors;
+vector<Client> client_descriptors;
 mutex client_descriptors_mutex;
 
+class Server {
+ private:
+	int socket_descriptor;
+
+	int number_of_clients;
+
+	vector<Client> clients;
+	mutex clients_mutex;
+
+	void accepter();
+
+ public:
+	Server();
+}
+
 void accepter(int server_descriptor) {
+	struct sockaddr_in client_addr;
+	socklen_t address_length = sizeof(client_addr);
 	while (1) {
-		int new_client = accept(server_descriptor, NULL, 0);
-		if (new_client != -1) {
-			printf("new client\r\n");
+		int new_client_descriptor = accept(server_descriptor,
+				(struct sockaddr*)&client_addr, &address_length);
+
+		if (new_client_descriptor != -1) {
 			client_descriptors_mutex.lock();
-			client_descriptors.push_back(new_client);
+			client_descriptors.emplace_back(new_client_descriptor, client_addr.sin_addr.s_addr);
 			client_descriptors_mutex.unlock();
 		}
 	}
@@ -45,8 +65,6 @@ int main() {
 	}
 
 	listen(fd, 1);
-
-	struct sockaddr_in client_addr;
 	
 	thread server_listener(accepter, fd);
 
@@ -54,8 +72,8 @@ int main() {
 	while(1) {
 		this_thread::sleep_for(chrono::milliseconds(10));
 		client_descriptors_mutex.lock();
-		for (auto client_fd : client_descriptors) {
-			int size = recv(client_fd, buffer, 1024, MSG_DONTWAIT);
+		for (auto client : client_descriptors) {
+			int size = recv(client.get_descriptor(), buffer, 1024, MSG_DONTWAIT);
 			if (size > 0) {
 				for (int i = 0; i < size; i++) {
 					printf("%c", buffer[i]);
@@ -68,7 +86,7 @@ int main() {
 	}
 	return 1;
 }
-
+/*
 typedef struct {
 	uint32_t serial_number;
 
@@ -91,7 +109,7 @@ bool request_open(uint8_t* packet, size_t packet_len) {
 
 	PacketHeader *header;
 	header = reinterpret_cast<PacketHeader*>(packet);
-
+*/
 	/*
  	 * Functions :
  	 * Read			0
@@ -100,7 +118,7 @@ bool request_open(uint8_t* packet, size_t packet_len) {
  	 * Write ACK		3
  	 * Read ACK		4
  	 */
-	if (header->function > 4) return false;
+/*	if (header->function > 4) return false;
 
 	// Search for client seial number;
 
@@ -146,4 +164,4 @@ void read_request(uint8_t serial, uint16_t register_number) {
 	header->register_number = register_number;
 }
 
-void packet_fill(uint32_t serial, 
+void packet_fill(uint32_t serial, */

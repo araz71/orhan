@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include <time.h>
+#include <stdint.h>
 
 class Client {
  private:
@@ -8,7 +9,7 @@ class Client {
 	
 	uint32_t ip_address;
 
-	uint32_t seial_number;
+	uint32_t serial_number;
 
 	time_t last_communication_timestamp;
 
@@ -21,4 +22,5 @@ class Client {
 	uint32_t get_serial_number();
 	time_t get_last_communication_timestamp();
 	uint32_t get_ip_address();
+	int get_descriptor();
 };
