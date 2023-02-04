@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 11)
 
 include_directories(src)
 
-set (SOURCES src/Client.cpp)
+set (SOURCES "src/Client.cpp"
+	"src/Server.cpp")
 
 add_executable(Noyan "src/main.cpp" "${SOURCES}")
 
