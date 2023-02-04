@@ -6,7 +6,7 @@
 using namespace std;
 
 int main() {
-	const uint8_t port = 9000;
+	const uint16_t port = 9000;
 	Server orhan(port);
 
 	printf("Orhan started on port %d\r\n", port);

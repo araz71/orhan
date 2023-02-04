@@ -20,6 +20,7 @@ class Client {
 	time_t last_communication_timestamp;
 
 	std::vector<uint8_t*> packets;
+
  public:
 	Client(const int socket_desctiptor, const uint32_t ip_address);
 	
