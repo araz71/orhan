@@ -69,4 +69,15 @@ void Server::reader() {
 	}
 }
 
+voud Server::writer() {
+	while (1) {
+		this_thread::sleep_for(chrono::milliseconds(10));
 
+		responses_mutex.lock();
+		for (auto& response : responses) {
+			write(response->first, response->second.c_str(), response->second.length());
+			responses.erase(response);
+		}
+		responses_mutex.unlock();
+	}
+}

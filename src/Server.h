@@ -14,6 +14,7 @@ class Server {
  private:
 	std::unique_ptr<std::thread> accepter_thread;
 	std::unique_ptr<std::thread> reader_thread;
+	std::unique_ptr<std::thread> writer_thread;
 
 	int server_descriptor;
 
@@ -21,6 +22,9 @@ class Server {
 
 	std::vector<Client> clients;
 	std::mutex clients_mutex;
+
+	std::map<int, std::string> responses;
+	std::mutex reponse_locker;
 
 	void accepter();
 	void reader();
