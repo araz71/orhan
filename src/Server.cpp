@@ -33,6 +33,7 @@ Server::Server(uint16_t port_number) {
 
 	accepter_thread.reset(new thread(&Server::accepter, this));
 	reader_thread.reset(new thread(&Server::reader, this));
+	writer_thread.reset(new thread(&Server::writer, this));
 }
 
 void Server::accepter() {
@@ -75,8 +76,14 @@ voud Server::writer() {
 
 		responses_mutex.lock();
 		for (auto& response : responses) {
-			write(response->first, response->second.c_str(), response->second.length());
-			responses.erase(response);
+			if (write(response->first, response->second.c_str(), response->second.length()) >= response->second.length())
+				responses.erase(response);
+			else {
+				close(response->first);
+				clients_mutex.lock();
+				// find and close client
+				clients_mutex.unlock();
+			}
 		}
 		responses_mutex.unlock();
 	}
