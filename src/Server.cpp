@@ -13,6 +13,7 @@
 #include <string.h>
 
 using namespace std;
+using namespace orhan;
 
 Server::Server(uint16_t port_number) {
 	server_descriptor = socket(AF_INET, SOCK_STREAM, 0);

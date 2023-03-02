@@ -1,13 +1,19 @@
 #ifndef _CLIENT_H_
 #define _CLIENT_H_
-#include "Packet.h"
 
 #include <vector>
 #include <memory>
-#include <map>
+#include <string>
+#include <unordered_map>
+
+#include "Packet.h"
+#include "Utility.h"
 
 #include <time.h>
 #include <stdint.h>
+
+namespace orhan
+{
 
 class Client {
  private:
@@ -39,10 +45,10 @@ class Client {
         bool load(uint32_t deviceID);
 
         void write_ack(uint16_t registerID);
-        void read_ack(uint16_t registerID, string& data);
-        string& read(uint16_t registerID);
+        void read_ack(uint16_t registerID, std::string& data);
+        std::string& read(uint16_t registerID);
 
-        bool check_registerID(Packet::functions function, uint16_t registerID);
+        bool check_registerID(orhan::Functions function, uint16_t registerID);
 	void set_serial_number(const uint32_t serial_number);
 	
 	void update_communication();
@@ -58,4 +64,5 @@ class Client {
 	bool add_packet(uint8_t* packet, size_t len);
 };
 
+}
 #endif

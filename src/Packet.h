@@ -1,39 +1,27 @@
-#include <stdint.h>
+#ifndef PACKET_H_
+#define PACKET_H_
+#include <string>
 
+#include "Utility.h"
+#include "Client.h"
+
+namespace orhan
+{
 
 class Packet {
  private:
-	typedef struct {
-		uint32_t serial_number;
-
-		uint8_t function;
-		uint16_t register_number;
-		uint16_t len;
-		uint16_t checksum;
-	} PacketHeader;
-
-        string& packet_make(uint32_t deviceID, functions function, uint16_t registerID, string data);
+        std::string& packet_make(uint32_t deviceID, orhan::Functions function, uint16_t registerID, std::string data);
         
-        string& packet_write(uint32_t deviceID, uint16_t registerID, string& data);
-        string& packet_write_ack(uint32_t deviceID, uint16_t registerID);
+        std::string& make_write(uint32_t deviceID, uint16_t registerID, std::string& data);
+        std::string& make_write_ack(uint32_t deviceID, uint16_t registerID);
 
-        string& packet_read(uint32_t deviceID, uint16_t registerID);
-        string& packet_read_ack(uint32_t deviceID, uint16_t registerID, string& data);
+        std::string& make_read(uint32_t deviceID, uint16_t registerID);
+        std::string& make_read_ack(uint32_t deviceID, uint16_t registerID, std::string& data);
 
-        string& packet_heartbit(uint32_t deviceID);
-
- public:
-	typedef enum {
-		READ,
-		WRITE,
-		HEARTBIT,
-		WRITE_ACK,
-		READ_ACK,
-                UNKNOWN_FUNCTION,
-	} Functions;
+        std::string& make_heartbit(uint32_t deviceID);
 
 	static bool analys(uint8_t* packet, size_t packet_len, Client& client) {
-		if (packet_size < sizeof(PacketHeader)) return false;
+		if (packet_len < sizeof(PacketHeader)) return false;
 
 		PacketHeader *header;
 		uint8_t* data;
@@ -51,23 +39,23 @@ class Packet {
                 data = packet + sizeof(PacketHeader);
 		data_len = packet_len - sizeof(PacketHeader);
 
-		Functions function = header->function;
-		if (function == HEARTBIT)
+		orhan::Functions function = static_cast<orhan::Functions>(header->function);
+		if (function == orhan::Functions::HEARTBIT)
 			client.update_communication();
 
-		else if (function == WRITE_ACK) {
+		else if (function == orhan::Functions::WRITE_ACK) {
 			// return register id for client
 //			client.write_ack(header->register_number);
 
-		} else if (function == READ_ACK) {
+		} else if (function == orhan::Functions::READ_ACK) {
 			// Copy data to register number and notify to client
 //			client.read_ack(header->register_number, data, data_len);
 	
-		} else if (function == WRITE) {
+		} else if (function == orhan::Functions::WRITE) {
                         //clinet.write(header->register_number, data);
                         //
-                } else if (function == READ) {
-  /*                      string& result;
+                } else if (function == orhan::Functions::READ) {
+  /*                      std::string& result;
 			if (client.read(header->register_number, result)) {
                                 
                         } else {
@@ -77,6 +65,7 @@ class Packet {
 
                 return true;
 	}
+};
+
 }
-
-
+#endif
