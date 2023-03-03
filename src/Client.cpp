@@ -6,13 +6,14 @@
 #include <string.h>
 
 using namespace std;
+using namespace orhan;
 
 constexpr size_t Client::MAXIMUM_PACKET_LENGTH;
 
 Client::Client(const int socket_desctiptor, const uint32_t ip_address) :
 	socket_desctiptor(socket_desctiptor),
 	ip_address(ip_address),
-        serial_number(0)
+	serial_number(0)
 {
 
 }
@@ -27,29 +28,29 @@ bool Client::load(uint32_t deviceID) {
     // Check database. if found load all registers.
 }
 
-bool Client::check_registerID(Packet::Functions function, uint16_t registerID {
-   auto& register_flags = registers.find(registerID);
+bool Client::check_registerID(Packet::Functions function, RegisterID regID) {
+   auto& register_flags = registers.find(regID);
         
    if (register_flags == registers.end()) return false;
 
    if ((function == Packet::Functions::READ_ACK || function == Packet::Functions::WRITE)
-                   && !(register_flags & WRITEABLE)) return false;
+	   && !(register_flags & WRITEABLE)) return false;
 
    if (function == Packet::Functions::READ && !(register_flags & READABLE)) return false;
 
    return true;
 }
 
-bool Client::write_ack(uint16_t registerID) {
-    auto& flags = write_queue.find(registerID);
+bool Client::write_ack(RegisterID regID) {
+    auto& flags = write_queue.find(regID);
     if (flags == write_queue.end()) return false;
 
     write_queue.erase(flags);
     return true;
 }
 
-void Client::read_ack(uint16_t registerID, string& data) {
-    auto& flags = read_queue.find(registerID);
+void Client::read_ack(RegisterID regID, string& data) {
+    auto& flags = read_queue.find(regID);
     if (flags == read_queue.end()) return false;
 
     // Update data stored in database
@@ -57,7 +58,7 @@ void Client::read_ack(uint16_t registerID, string& data) {
     return true;
 }
 
-string& Client::read(uint16_t registerID) {
+string& Client::read(RegisterID regID) {
    // read from database and return value 
 }
 

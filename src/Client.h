@@ -19,6 +19,11 @@ class Client {
  private:
 	static constexpr size_t MAXIMUM_PACKET_LENGTH = 256;
 
+	typedef enum {
+            WRITEABLE = 0x01,
+            READABLE = 0x02
+    } RegisterAccessFlags;
+
 	int socket_desctiptor;
 	
 	uint32_t ip_address;
@@ -27,28 +32,23 @@ class Client {
 
 	time_t last_communication_timestamp;
 
-        std::unordered_map<uint16_t> write_queue;
-        std::unordered_map<uint16_t> read_queue;
+    std::unordered_map<orhan::RegisterID, uint16_t> write_queue;
+    std::unordered_map<orhan::RegisterID, uint16_t> read_queue;
 
-        typedef enum {
-                WRITEABLE = 0x01,
-                READABLE = 0x02
-        } RegisterAccessFlags;
-
-        std::unordered_map<uint16_t, RegisterAccessFlags> registers;
+	std::unordered_map<orhan::RegisterID, RegisterAccessFlags> registers;
 
  public:
 	Client(const int socket_desctiptor, const uint32_t ip_address);
 
-        bool is_ready();
-        
-        bool load(uint32_t deviceID);
+	bool is_ready();
 
-        void write_ack(uint16_t registerID);
-        void read_ack(uint16_t registerID, std::string& data);
-        std::string& read(uint16_t registerID);
+    bool load(uint32_t deviceID);
 
-        bool check_registerID(orhan::Functions function, uint16_t registerID);
+    void write_ack(orhan::RegisterID regID);
+    void read_ack(orhan::RegisterID regID, std::string& data);
+    std::string& read(orhan::RegisterID regID);
+
+    bool check_registerID(orhan::Functions function, orhan::RegisterID regID);
 	void set_serial_number(const uint32_t serial_number);
 	
 	void update_communication();

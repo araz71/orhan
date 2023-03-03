@@ -4,6 +4,8 @@
 namespace orhan
 {
 
+using RegisterID = uint16_t;
+
 typedef struct {
 	uint32_t serial_number;
 
