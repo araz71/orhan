@@ -42,8 +42,8 @@ void Server::accepter() {
 	socklen_t address_length = sizeof(client_addr);
 	
 	while (1) {
-		int new_client_descriptor = accept(server_descriptor,
-				(struct sockaddr*)&client_addr, &address_length);
+		int new_client_descriptor = accept(server_descriptor, (struct sockaddr*)&client_addr,
+            &address_length);
 
 		if (new_client_descriptor != -1) {
 			clients_mutex.lock();
@@ -63,8 +63,8 @@ void Server::reader() {
 			int size = recv(client.get_descriptor(), buffer, sizeof(buffer), MSG_DONTWAIT);
 			if (size > 0) {
 				if (!client.add_packet(buffer, size)) {
-					printf("Can not atach packet\r\n");	
-				}
+					printf("Can not atach packet\r\n");
+                }
 			}
 		}
 		clients_mutex.unlock();
@@ -77,9 +77,9 @@ voud Server::writer() {
 
 		responses_mutex.lock();
 		for (auto& response : responses) {
-			if (write(response->first, response->second.c_str(), response->second.length()) >= response->second.length())
+			if (write(response->first, response->second.c_str(), response->second.length()) >= response->second.length()) {
 				responses.erase(response);
-			else {
+			} else {
 				close(response->first);
 				clients_mutex.lock();
 				// find and close client

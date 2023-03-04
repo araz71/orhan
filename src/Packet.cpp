@@ -5,42 +5,47 @@
 using namespace std;
 using namespace orhan;
 
-string Packet::packet_heartbit(uint32_t deviceID) {
-	return packet_make(deviceID, HEARTBIT, 0, string());
+void Packet::make_heartbit(uint32_t deviceID, string& buffer) {
+    make(deviceID, HEARTBIT, 0, string(), buffer);
 }
 
-string& Packet::make_write_ack(uint32_t deviceID, RegisterID regID) {
-	return packet_make(deviceID, WRITE_ACK, regID, string());
+void Packet::make_write_ack(uint32_t deviceID, RegisterID regID, string& buffer) {
+    make(deviceID, WRITE_ACK, regID, string(), buffer);
 }
 
-string& Packet::make_read_ack(uint32_t deviceID, RegisterID regID, string& data) {
-	return packet_make(deviceID, READ_ACK, regID, data);
+void Packet::make_read_ack(uint32_t deviceID, RegisterID regID, string& data, string& buffer) {
+	make(deviceID, READ_ACK, regID, data, buffer);
 }
 
-string& Packet::make_write(uint32_t deviceID, RegisterID regID, string& data) {
-	return packet_make(deviceID, WRITE, regID, data);
+void Packet::make_write(uint32_t deviceID, RegisterID regID, string& data, string& buffer) {
+    make(deviceID, WRITE, regID, data, buffer);
 }
 
-string& Packet::make_read(uint32_t deviceID, RegisterID regID) {
-	return packet_make(deviceID, regID, string());
+void Packet::make_read(uint32_t deviceID, RegisterID regID, string& buffer) {
+	make(deviceID, regID, string(), buffer);
 }
 
-string& Packet::make(uint32_t deviceID, Functions function, RegisterID regID, string& data) {
-        uint8_t buffer[MAXIMUM_PACKET_SIZE];
-        memset(buffer, 0, sizeof(buffer));
-        
-        PacketHeader* header = reinterpret_cast<PacketHeader*>(buffer);
+void Packet::make(uint32_t deviceID, Functions function, RegisterID regID, string& data, string& buffer) {
+    PacketHeader header;
 
-        header->serial_number = deviceID;
-        header->function = function;
-        header->register_number = regID;
-        header->len = data.length();
+    buffer.resize(MAXIMUM_PACKET_SIZE);
+    buffer.clear();
+  
+    memset(&header, 0, sizeof(PacketHeader));
 
-        memcpy(buffer + sizeof(PacketHeader), data.c_str(), data.length());
+    header.serial_number = deviceID;
+    header.function = function;
+    header.register_number = regID;
+    header.len = data.length();
 
-        uint16_t checksum = 0;
-        for (size_t i = 0; i < (sizeof(PacketHeader) + data.length()); i++)
-			checksum += buffer[i];
+    uint16_t& checksum = header.checksum;
+    uint8_t* pointer_to_header = reinterpret_cast<uint8_t*>(&header);
+    for (size_t i = 0; i < sizeof(PacketHeader); i++)
+        checksum += pointer_to_header[i];
 
-        return string(reinterpret_cast<char*>(buffer), sizeof(PacketHeader) + data.length());
+    for (size_t i = 0; i < data.length(); i++)
+        checksum += data[i];
+
+    buffer.append(reinterpret_cast<char*>(&header), sizeof(PacketHeader)); 
+    buffer.append(data);
 }

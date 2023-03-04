@@ -49,7 +49,7 @@ bool Client::write_ack(RegisterID regID) {
     return true;
 }
 
-void Client::read_ack(RegisterID regID, string& data) {
+bool Client::read_ack(RegisterID regID, string& data) {
     auto& flags = read_queue.find(regID);
     if (flags == read_queue.end()) return false;
 

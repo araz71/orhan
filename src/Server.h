@@ -32,6 +32,7 @@ class Server {
 
 	void accepter();
 	void reader();
+
  public:
 	Server(uint16_t port_number);
 };

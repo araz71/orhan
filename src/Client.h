@@ -44,17 +44,58 @@ class Client {
 
     bool load(uint32_t deviceID);
 
-    void write_ack(orhan::RegisterID regID);
-    void read_ack(orhan::RegisterID regID, std::string& data);
-    std::string& read(orhan::RegisterID regID);
+    /**
+     * Search regID in clients registers and stores data.
+     *
+     * @param regID registers number
+     * @param data Data which should store in clients register table
+     * @return True if register id found and false if not found
+     */
+    bool write(orhan::RegisterID regID, std::string& data);
+    
+    /**
+     * Checks if client requested write function
+     *
+     * @param regID register which requested to write
+     * @return True if register found in write queue otherwise False
+     */
+    bool write_ack(orhan::RegisterID regID);
+    
+    /**
+     * Reads register data from clients register data table
+     *
+     * @param regID number of register which should read from clients data table
+     * @return boost::none if register not found. otherwise data of requested register.
+     */
+    boost::optional<std::string> read(orhan::RegisterID regID);
+   
+    /**
+     * Writes data incomes from device into registers data field.
+     *
+     * @param regID number of register which requested to read
+     * @return True if reading register found in read queue. otherwise returns False.
+     */
+    bool read_ack(orhan::RegisterID regID, std::string& data);
 
+    /**
+     * Checks if register is found in client register table or not
+     *
+     * @param function Function which will do on register
+     * @param regID number of register
+     * @return True if register found and function has access. otherwise false
+     */
     bool check_registerID(orhan::Functions function, orhan::RegisterID regID);
-	void set_serial_number(const uint32_t serial_number);
 	
+    // Sets clients serial number
+    void set_serial_number(const uint32_t serial_number);
+
+    // Updates last client communication
 	void update_communication();
 
+    // Returns clients serial number
 	uint32_t get_serial_number();
 	
+    // Returns last clients communication timestamp
 	time_t get_last_communication_timestamp();
 	
 	uint32_t get_ip_address();

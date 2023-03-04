@@ -10,15 +10,17 @@ namespace orhan
 
 class Packet {
  private:
-	std::string& packet_make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID, std::string data);
+
+ public:
+	void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID, std::string data, std::string& buffer);
     
-    std::string& make_write(uint32_t deviceID, orhan::RegisterID regID, std::string& data);
-    std::string& make_write_ack(uint32_t deviceID, orhan::RegisterID regID);
+    void make_write(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer);
+    void make_write_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& buffer);
 
-    std::string& make_read(uint32_t deviceID, orhan::RegisterID regID);
-    std::string& make_read_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& data);
+    void make_read(uint32_t deviceID, orhan::RegisterID regID, std::string& buffer);
+    void make_read_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer);
 
-    std::string& make_heartbit(uint32_t deviceID);
+    void make_heartbit(uint32_t deviceID, std::string& buffer);
 
 	static bool analys(uint8_t* packet, size_t packet_len, orhan::Client& client) {
 		if (packet_len < sizeof(PacketHeader)) return false;
