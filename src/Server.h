@@ -24,7 +24,7 @@ class Server {
 
 	int number_of_clients;
 
-	std::vector<orhan::Client> clients;
+        std::unordered_map<int, orhan::Client> clients;
 	std::mutex clients_mutex;
 
 	std::map<int, std::string> responses;

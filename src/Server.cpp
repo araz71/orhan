@@ -47,7 +47,7 @@ void Server::accepter() {
 
 		if (new_client_descriptor != -1) {
 			clients_mutex.lock();
-			clients.emplace_back(new_client_descriptor, client_addr.sin_addr.s_addr);
+                        clients[new_client_descriptor] = Client(new_client_descriptor, client_addr.sin_addr.s_addr);
 			clients_mutex.unlock();
 		}
 	}
@@ -60,12 +60,19 @@ void Server::reader() {
 		this_thread::sleep_for(chrono::milliseconds(10));
 		clients_mutex.lock();
 		for (auto client : clients) {
-			int size = recv(client.get_descriptor(), buffer, sizeof(buffer), MSG_DONTWAIT);
+                        int &socket_descriptor = client->first;
+                        Client& client_object = client->second;
+
+                        int size = recv(socket_descriptor, buffer, sizeof(buffer), MSG_DONTWAIT);
 			if (size > 0) {
-                string response;
-				if (!client.add_packet(buffer, size, response)) {
+                                string response;
+                                if (!client_object.add_packet(buffer, size, response)) {
 					printf("Can not atach packet\r\n");
-                }
+                                } else if (response.size() > 0) {
+                                    responses_mutex.lock();
+                                    responses.push(response);
+                                    responses_mutex.unlock();
+                                }
 			}
 		}
 		clients_mutex.unlock();
@@ -78,14 +85,24 @@ voud Server::writer() {
 
 		responses_mutex.lock();
 		for (auto& response : responses) {
-			if (write(response->first, response->second.c_str(), response->second.length()) >= response->second.length()) {
-				responses.erase(response);
-			} else {
+                        size_t write_len = write(response->first, response->second.c_str(), response->second.length());
+
+                        if (write_len < response.size()) {
+                        } else {
 				close(response->first);
-				clients_mutex.lock();
-				// find and close client
-				clients_mutex.unlock();
+
+                                clients_mutex.lock();
+
+                                // find and close client
+                                auto& client = clients.find(response->first);
+
+                                if (client != clients.end()) {
+                                    clients.erase(client);
+                                }
+
+                                clients_mutex.unlock();
 			}
+                        responses.erase(response);
 		}
 		responses_mutex.unlock();
 	}
