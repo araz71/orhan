@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 
+#include <boost/optional.hpp>
+
 #include "Packet.h"
 #include "Utility.h"
 
@@ -42,6 +44,11 @@ class Client {
 
 	bool is_ready();
 
+    /**
+     * Searchs client ID inside database
+     *
+     * @param deviceID Device serial number
+     * @return 
     bool load(uint32_t deviceID);
 
     /**
@@ -102,7 +109,7 @@ class Client {
 	
 	int get_descriptor();
 	
-	bool add_packet(uint8_t* packet, size_t len);
+	bool add_packet(uint8_t* packet, size_t len, std::string& response);
 };
 
 }

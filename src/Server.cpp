@@ -62,7 +62,8 @@ void Server::reader() {
 		for (auto client : clients) {
 			int size = recv(client.get_descriptor(), buffer, sizeof(buffer), MSG_DONTWAIT);
 			if (size > 0) {
-				if (!client.add_packet(buffer, size)) {
+                string response;
+				if (!client.add_packet(buffer, size, response)) {
 					printf("Can not atach packet\r\n");
                 }
 			}

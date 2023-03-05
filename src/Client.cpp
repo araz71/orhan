@@ -86,9 +86,9 @@ int Client::get_descriptor() {
 	return socket_desctiptor;
 }
 
-bool Client::add_packet(uint8_t* packet, size_t size) {
+bool Client::add_packet(uint8_t* packet, size_t size, string& response) {
 	if (size > MAXIMUM_PACKET_LENGTH)
 		return false;
 
-    Packet::analys(packet, size, this);
+    Packet::analys(packet, size, response, *this);
 }

@@ -12,17 +12,52 @@ class Packet {
  private:
 
  public:
-	void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID, std::string data, std::string& buffer);
+	static void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID, std::string data, std::string& buffer) {
+        PacketHeader header;
+
+        buffer.resize(MAXIMUM_PACKET_SIZE);
+        buffer.clear();
+      
+        memset(&header, 0, sizeof(PacketHeader));
+
+        header.serial_number = deviceID;
+        header.function = function;
+        header.register_number = regID;
+        header.len = data.length();
+
+        uint16_t& checksum = header.checksum;
+        uint8_t* pointer_to_header = reinterpret_cast<uint8_t*>(&header);
+        for (size_t i = 0; i < sizeof(PacketHeader); i++)
+            checksum += pointer_to_header[i];
+
+        for (size_t i = 0; i < data.length(); i++)
+            checksum += data[i];
+
+        buffer.append(reinterpret_cast<char*>(&header), sizeof(PacketHeader)); 
+        buffer.append(data);
+    }
     
-    void make_write(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer);
-    void make_write_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& buffer);
+    static void make_write(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer) {
+        make(deviceID, Functions::WRITE, regID, data, buffer);
+    }
+    
+    static void make_write_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& buffer) {
+        make(deviceID, Functions::WRITE_ACK, regID, string(), buffer);
+    }
 
-    void make_read(uint32_t deviceID, orhan::RegisterID regID, std::string& buffer);
-    void make_read_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer);
+    static void make_read(uint32_t deviceID, orhan::RegisterID regID, std::string& buffer) {
+        make(deviceID, Functions::READ, regID, string(), buffer);
+    }
 
-    void make_heartbit(uint32_t deviceID, std::string& buffer);
+    static void make_read_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer) {
+        make(deviceID, Functions::READ_ACK, regID, data, buffer);
+    }
 
-	static bool analys(uint8_t* packet, size_t packet_len, orhan::Client& client) {
+    static void make_heartbit(uint32_t deviceID, std::string& buffer) {
+        make(deviceID, Functions::HEARTBIT, 0, string(), buffer);
+    }
+
+	static bool analys(uint8_t* packet, size_t packet_len, std::string& response, orhan::Client& client) {
 		if (packet_len < sizeof(PacketHeader)) return false;
 
 		PacketHeader *header;
@@ -37,7 +72,7 @@ class Packet {
 
 		// Check for register number and function access
 		if (!client.check_registerID(header->function, header->register_number)) return false;
-
+        
 		data = packet + sizeof(PacketHeader);
 		data_len = packet_len - sizeof(PacketHeader);
 
@@ -55,12 +90,15 @@ class Packet {
 		
 		} else if (function == orhan::Functions::WRITE) {
 			//clinet.write(header->register_number, data);
-			//
+			make_write_ack(header->serial_number, header->register_number, response);
+
 		} else if (function == orhan::Functions::READ) {
 	/*                  std::string& result;
 			if (client.read(header->register_number, result)) {
 			} else {
+                make_read_ack(header->serial_number, header->register_number, data, response);
 			}*/
+
 		}
 
 		return true;
