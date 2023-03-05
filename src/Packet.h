@@ -1,6 +1,10 @@
 #ifndef PACKET_H_
 #define PACKET_H_
+
 #include <string>
+
+#include <stdlib.h>
+#include <string.h>
 
 #include "Utility.h"
 #include "Client.h"
@@ -42,11 +46,11 @@ class Packet {
     }
     
     static void make_write_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& buffer) {
-        make(deviceID, Functions::WRITE_ACK, regID, string(), buffer);
+        make(deviceID, Functions::WRITE_ACK, regID, std::string(), buffer);
     }
 
     static void make_read(uint32_t deviceID, orhan::RegisterID regID, std::string& buffer) {
-        make(deviceID, Functions::READ, regID, string(), buffer);
+        make(deviceID, Functions::READ, regID, std::string(), buffer);
     }
 
     static void make_read_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer) {
@@ -54,10 +58,10 @@ class Packet {
     }
 
     static void make_heartbit(uint32_t deviceID, std::string& buffer) {
-        make(deviceID, Functions::HEARTBIT, 0, string(), buffer);
+        make(deviceID, Functions::HEARTBIT, 0, std::string(), buffer);
     }
 
-	static bool analys(uint8_t* packet, size_t packet_len, std::string& response, orhan::Client& client) {
+	static bool analys(uint8_t* packet, size_t packet_len, std::string& response, orhan::Client* client) {
 		if (packet_len < sizeof(PacketHeader)) return false;
 
 		PacketHeader *header;
@@ -68,17 +72,17 @@ class Packet {
 		if (header->function >= UNKNOWN_FUNCTION) return false;
 				
 		// Check for deviceID
-		if (!client.is_ready() && !client.load(header->serial_number)) return false;
+		if (!client->is_ready() && !client->load(header->serial_number)) return false;
 
 		// Check for register number and function access
-		if (!client.check_registerID(header->function, header->register_number)) return false;
+		if (!client->check_registerID(header->function, header->register_number)) return false;
         
 		data = packet + sizeof(PacketHeader);
 		data_len = packet_len - sizeof(PacketHeader);
 
 		orhan::Functions function = static_cast<orhan::Functions>(header->function);
 		if (function == orhan::Functions::HEARTBIT)
-			client.update_communication();
+			client->update_communication();
 
 		else if (function == orhan::Functions::WRITE_ACK) {
 		// return register id for client

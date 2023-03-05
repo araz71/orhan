@@ -26,6 +26,7 @@ bool Client::is_ready() {
 
 bool Client::load(uint32_t deviceID) {
     // Check database. if found load all registers.
+    return true;
 }
 
 bool Client::check_registerID(Packet::Functions function, RegisterID regID) {
@@ -90,5 +91,5 @@ bool Client::add_packet(uint8_t* packet, size_t size, string& response) {
 	if (size > MAXIMUM_PACKET_LENGTH)
 		return false;
 
-    Packet::analys(packet, size, response, *this);
+    Packet::analys(packet, size, response, this);
 }

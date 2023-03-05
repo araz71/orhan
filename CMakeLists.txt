@@ -9,7 +9,7 @@ include_directories(src)
 
 set (SOURCES "src/Client.cpp"
 	"src/Server.cpp"
-        "src/Packet.cpp")
+    )
 
 add_executable(Noyan "src/main.cpp" "${SOURCES}")
 

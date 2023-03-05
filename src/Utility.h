@@ -6,6 +6,8 @@ namespace orhan
 
 using RegisterID = uint16_t;
 
+#define MAXIMUM_PACKET_SIZE     256
+
 typedef struct {
 	uint32_t serial_number;
 
@@ -21,7 +23,7 @@ typedef enum {
 	HEARTBIT,
 	WRITE_ACK,
 	READ_ACK,
-        UNKNOWN_FUNCTION,
+    UNKNOWN_FUNCTION,
 } Functions;
 
 }
