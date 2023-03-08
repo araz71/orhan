@@ -48,7 +48,8 @@ class Client {
      * Searchs client ID inside database
      *
      * @param deviceID Device serial number
-     * @return 
+     * @return True if device found. otherwise False.
+     */
     bool load(uint32_t deviceID);
 
     /**

@@ -29,15 +29,15 @@ bool Client::load(uint32_t deviceID) {
     return true;
 }
 
-bool Client::check_registerID(Packet::Functions function, RegisterID regID) {
+bool Client::check_registerID(Functions function, RegisterID regID) {
    auto& register_flags = registers.find(regID);
         
    if (register_flags == registers.end()) return false;
 
-   if ((function == Packet::Functions::READ_ACK || function == Packet::Functions::WRITE)
-	   && !(register_flags & WRITEABLE)) return false;
+   if ((function == Functions::READ_ACK || function == Functions::WRITE)
+	   && !(register_flags->second & WRITEABLE)) return false;
 
-   if (function == Packet::Functions::READ && !(register_flags & READABLE)) return false;
+   if (function == Functions::READ && !(register_flags->second & READABLE)) return false;
 
    return true;
 }
@@ -59,8 +59,9 @@ bool Client::read_ack(RegisterID regID, string& data) {
     return true;
 }
 
-string& Client::read(RegisterID regID) {
-   // read from database and return value 
+boost::optional<string> Client::read(RegisterID regID) {
+   // read from database and return value
+   return boost::none;
 }
 
 void Client::set_serial_number(const uint32_t serial_number) {
@@ -91,5 +92,5 @@ bool Client::add_packet(uint8_t* packet, size_t size, string& response) {
 	if (size > MAXIMUM_PACKET_LENGTH)
 		return false;
 
-    Packet::analys(packet, size, response, this);
+    Packet::analys(packet, size, response, *this);
 }

@@ -61,7 +61,8 @@ class Packet {
         make(deviceID, Functions::HEARTBIT, 0, std::string(), buffer);
     }
 
-	static bool analys(uint8_t* packet, size_t packet_len, std::string& response, orhan::Client* client) {
+    template <typename T>
+	static bool analys(uint8_t* packet, size_t packet_len, std::string& response, T& client) {
 		if (packet_len < sizeof(PacketHeader)) return false;
 
 		PacketHeader *header;
@@ -72,17 +73,17 @@ class Packet {
 		if (header->function >= UNKNOWN_FUNCTION) return false;
 				
 		// Check for deviceID
-		if (!client->is_ready() && !client->load(header->serial_number)) return false;
+		if (!client.is_ready() && !client.load(header->serial_number)) return false;
 
 		// Check for register number and function access
-		if (!client->check_registerID(header->function, header->register_number)) return false;
+		if (!client.check_registerID(static_cast<orhan::Functions>(header->function), header->register_number)) return false;
         
 		data = packet + sizeof(PacketHeader);
 		data_len = packet_len - sizeof(PacketHeader);
 
 		orhan::Functions function = static_cast<orhan::Functions>(header->function);
 		if (function == orhan::Functions::HEARTBIT)
-			client->update_communication();
+			client.update_communication();
 
 		else if (function == orhan::Functions::WRITE_ACK) {
 		// return register id for client
