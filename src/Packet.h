@@ -62,14 +62,14 @@ class Packet {
     }
 
     template <typename T>
-	static bool analys(uint8_t* packet, size_t packet_len, std::string& response, T& client) {
+	static bool analys(const uint8_t* packet, const size_t packet_len, std::string& response, T& client) {
 		if (packet_len < sizeof(PacketHeader)) return false;
 
 		PacketHeader *header;
 		uint8_t* data;
 		size_t data_len;
 
-		header = reinterpret_cast<PacketHeader*>(packet);
+		header = reinterpret_cast<PacketHeader*>(const_cast<uint8_t*>(packet));
 		if (header->function >= UNKNOWN_FUNCTION) return false;
 				
 		// Check for deviceID
@@ -78,7 +78,7 @@ class Packet {
 		// Check for register number and function access
 		if (!client.check_registerID(static_cast<orhan::Functions>(header->function), header->register_number)) return false;
         
-		data = packet + sizeof(PacketHeader);
+		data = const_cast<uint8_t*>(packet) + sizeof(PacketHeader);
 		data_len = packet_len - sizeof(PacketHeader);
 
 		orhan::Functions function = static_cast<orhan::Functions>(header->function);

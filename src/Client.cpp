@@ -24,13 +24,13 @@ bool Client::is_ready() {
     return true;
 }
 
-bool Client::load(uint32_t deviceID) {
+bool Client::load(const uint32_t deviceID) {
     // Check database. if found load all registers.
     return true;
 }
 
-bool Client::check_registerID(Functions function, RegisterID regID) {
-   auto& register_flags = registers.find(regID);
+bool Client::check_registerID(const Functions function, const RegisterID regID) {
+   auto register_flags = registers.find(regID);
         
    if (register_flags == registers.end()) return false;
 
@@ -42,16 +42,16 @@ bool Client::check_registerID(Functions function, RegisterID regID) {
    return true;
 }
 
-bool Client::write_ack(RegisterID regID) {
-    auto& flags = write_queue.find(regID);
+bool Client::write_ack(const RegisterID regID) {
+    const auto flags = write_queue.find(regID);
     if (flags == write_queue.end()) return false;
 
     write_queue.erase(flags);
     return true;
 }
 
-bool Client::read_ack(RegisterID regID, string& data) {
-    auto& flags = read_queue.find(regID);
+bool Client::read_ack(const RegisterID regID, const string& data) {
+    const auto flags = read_queue.find(regID);
     if (flags == read_queue.end()) return false;
 
     // Update data stored in database
@@ -59,7 +59,7 @@ bool Client::read_ack(RegisterID regID, string& data) {
     return true;
 }
 
-boost::optional<string> Client::read(RegisterID regID) {
+boost::optional<string> Client::read(const RegisterID regID) {
    // read from database and return value
    return boost::none;
 }
@@ -88,9 +88,9 @@ int Client::get_descriptor() {
 	return socket_desctiptor;
 }
 
-bool Client::add_packet(uint8_t* packet, size_t size, string& response) {
+bool Client::add_packet(const uint8_t* packet, const size_t size, string& response) {
 	if (size > MAXIMUM_PACKET_LENGTH)
 		return false;
 
-    Packet::analys(packet, size, response, *this);
+    return Packet::analys<Client>(packet, size, response, *this);
 }

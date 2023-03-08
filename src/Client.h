@@ -50,7 +50,7 @@ class Client {
      * @param deviceID Device serial number
      * @return True if device found. otherwise False.
      */
-    bool load(uint32_t deviceID);
+    bool load(const uint32_t deviceID);
 
     /**
      * Search regID in clients registers and stores data.
@@ -59,7 +59,7 @@ class Client {
      * @param data Data which should store in clients register table
      * @return True if register id found and false if not found
      */
-    bool write(orhan::RegisterID regID, std::string& data);
+    bool write(const orhan::RegisterID regID, const std::string& data);
     
     /**
      * Checks if client requested write function
@@ -67,7 +67,7 @@ class Client {
      * @param regID register which requested to write
      * @return True if register found in write queue otherwise False
      */
-    bool write_ack(orhan::RegisterID regID);
+    bool write_ack(const orhan::RegisterID regID);
     
     /**
      * Reads register data from clients register data table
@@ -75,7 +75,7 @@ class Client {
      * @param regID number of register which should read from clients data table
      * @return boost::none if register not found. otherwise data of requested register.
      */
-    boost::optional<std::string> read(orhan::RegisterID regID);
+    boost::optional<std::string> read(const orhan::RegisterID regID);
    
     /**
      * Writes data incomes from device into registers data field.
@@ -83,7 +83,7 @@ class Client {
      * @param regID number of register which requested to read
      * @return True if reading register found in read queue. otherwise returns False.
      */
-    bool read_ack(orhan::RegisterID regID, std::string& data);
+    bool read_ack(const orhan::RegisterID regID, const std::string& data);
 
     /**
      * Checks if register is found in client register table or not
@@ -92,7 +92,7 @@ class Client {
      * @param regID number of register
      * @return True if register found and function has access. otherwise false
      */
-    bool check_registerID(orhan::Functions function, orhan::RegisterID regID);
+    bool check_registerID(const orhan::Functions function, const orhan::RegisterID regID);
 	
     // Sets clients serial number
     void set_serial_number(const uint32_t serial_number);
@@ -110,7 +110,7 @@ class Client {
 	
 	int get_descriptor();
 	
-	bool add_packet(uint8_t* packet, size_t len, std::string& response);
+	bool add_packet(const uint8_t* packet, const size_t len, std::string& response);
 };
 
 }

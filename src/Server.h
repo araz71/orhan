@@ -27,12 +27,8 @@ class Server {
         std::unordered_map<int, orhan::Client> clients;
 	std::mutex clients_mutex;
 
-	std::map<int, std::string> responses;
-	std::mutex reponse_locker;
-
 	void accepter();
 	void reader();
-
  public:
 	Server(uint16_t port_number);
 };
