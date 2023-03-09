@@ -32,19 +32,23 @@ bool Client::load(const uint32_t deviceID) {
 bool Client::check_registerID(const Functions function, const RegisterID regID) {
    auto register_flags = registers.find(regID);
         
-   if (register_flags == registers.end()) return false;
+   if (register_flags == registers.end())
+	return false;
 
    if ((function == Functions::READ_ACK || function == Functions::WRITE)
-	   && !(register_flags->second & WRITEABLE)) return false;
+	   && !(register_flags->second & WRITEABLE))
+	return false;
 
-   if (function == Functions::READ && !(register_flags->second & READABLE)) return false;
+   if (function == Functions::READ && !(register_flags->second & READABLE))
+	return false;
 
    return true;
 }
 
 bool Client::write_ack(const RegisterID regID) {
     const auto flags = write_queue.find(regID);
-    if (flags == write_queue.end()) return false;
+    if (flags == write_queue.end())
+	return false;
 
     write_queue.erase(flags);
     return true;
@@ -52,7 +56,8 @@ bool Client::write_ack(const RegisterID regID) {
 
 bool Client::read_ack(const RegisterID regID, const string& data) {
     const auto flags = read_queue.find(regID);
-    if (flags == read_queue.end()) return false;
+    if (flags == read_queue.end())
+	return false;
 
     // Update data stored in database
     read_queue.erase(flags);

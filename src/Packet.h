@@ -16,7 +16,9 @@ class Packet {
  private:
 
  public:
-	static void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID, std::string data, std::string& buffer) {
+	using NO_DATA = boost::none;
+
+	static void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID, boost::optional<std::string> data, std::string& buffer) {
         PacketHeader header;
 
         buffer.resize(MAXIMUM_PACKET_SIZE);
@@ -63,20 +65,23 @@ class Packet {
 
     template <typename T>
 	static bool analys(const uint8_t* packet, const size_t packet_len, std::string& response, T& client) {
-		if (packet_len < sizeof(PacketHeader)) return false;
+		if (packet_len < sizeof(PacketHeader))
+			return false;
 
 		PacketHeader *header;
 		uint8_t* data;
 		size_t data_len;
 
 		header = reinterpret_cast<PacketHeader*>(const_cast<uint8_t*>(packet));
-		if (header->function >= UNKNOWN_FUNCTION) return false;
+		if (header->function >= UNKNOWN_FUNCTION)
+			return false;
 				
 		// Check for deviceID
 		if (!client.is_ready() && !client.load(header->serial_number)) return false;
 
 		// Check for register number and function access
-		if (!client.check_registerID(static_cast<orhan::Functions>(header->function), header->register_number)) return false;
+		if (!client.check_registerID(static_cast<orhan::Functions>(header->function), header->register_number))
+			return false;
         
 		data = const_cast<uint8_t*>(packet) + sizeof(PacketHeader);
 		data_len = packet_len - sizeof(PacketHeader);
