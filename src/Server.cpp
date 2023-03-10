@@ -68,7 +68,7 @@ void Server::reader() {
 				if (!client_object.add_packet(buffer, size, response)) {
 					printf("Can not atach packet\r\n");
 				} else if (response.size() > 0) {
-					size_t write_len = write(socket_descriptor, response.c_str(), response.length());
+					size_t write_len = send(socket_descriptor, response.c_str(), response.length(), 0);
 					if (write_len < response.length()) {
 						// ERROR
 					}

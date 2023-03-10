@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <memory>
+#include <optional>
 
 #include <string.h>
 
@@ -64,9 +65,9 @@ bool Client::read_ack(const RegisterID regID, const string& data) {
     return true;
 }
 
-boost::optional<string> Client::read(const RegisterID regID) {
+optional<string> Client::read(const RegisterID regID) {
    // read from database and return value
-   return boost::none;
+   return std::nullopt;
 }
 
 void Client::set_serial_number(const uint32_t serial_number) {

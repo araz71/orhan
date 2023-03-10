@@ -5,8 +5,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-
-#include <boost/optional.hpp>
+#include <optional>
 
 #include "Packet.h"
 #include "Utility.h"
@@ -76,8 +75,7 @@ class Client {
      * @param regID number of register which should read from clients data table
      * @return boost::none if register not found. otherwise data of requested register.
      */
-    boost::optional<std::string> read(const orhan::RegisterID regID);
-   
+	std::optional<std::string> read(const orhan::RegisterID regID); 
     /**
      * Writes data incomes from device into registers data field.
      *

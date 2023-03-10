@@ -2,6 +2,7 @@
 #define PACKET_H_
 
 #include <string>
+#include <optional>
 
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +18,7 @@ class Packet {
 
  public:
 	static void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID,
-        boost::optional<std::string> data, std::string& buffer)
+        std::optional<std::string> data, std::string& buffer)
     {
         PacketHeader header;
 
@@ -30,7 +31,7 @@ class Packet {
         header.function = function;
         header.register_number = regID;
         if (data)
-            header.len = data.get().length();
+            header.len = data.value().length();
         
         uint16_t& checksum = header.checksum;
         uint8_t* pointer_to_header = reinterpret_cast<uint8_t*>(&header);
@@ -38,14 +39,14 @@ class Packet {
             checksum += pointer_to_header[i];
 
         if (data) {
-            for (size_t i = 0; i < data.get().length(); i++)
-                checksum += data.get()[i];
+            for (size_t i = 0; i < data.value().length(); i++)
+                checksum += data.value()[i];
         }
 
         buffer.append(reinterpret_cast<char*>(&header), sizeof(PacketHeader)); 
         
         if (data)
-            buffer.append(data.get());
+            buffer.append(data.value());
     }
     
     static void make_write(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer) {
