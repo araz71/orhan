@@ -16,9 +16,9 @@ class Packet {
  private:
 
  public:
-	using NO_DATA = boost::none;
-
-	static void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID, boost::optional<std::string> data, std::string& buffer) {
+	static void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID,
+        boost::optional<std::string> data, std::string& buffer)
+    {
         PacketHeader header;
 
         buffer.resize(MAXIMUM_PACKET_SIZE);
@@ -29,18 +29,23 @@ class Packet {
         header.serial_number = deviceID;
         header.function = function;
         header.register_number = regID;
-        header.len = data.length();
-
+        if (data)
+            header.len = data.get().length();
+        
         uint16_t& checksum = header.checksum;
         uint8_t* pointer_to_header = reinterpret_cast<uint8_t*>(&header);
         for (size_t i = 0; i < sizeof(PacketHeader); i++)
             checksum += pointer_to_header[i];
 
-        for (size_t i = 0; i < data.length(); i++)
-            checksum += data[i];
+        if (data) {
+            for (size_t i = 0; i < data.get().length(); i++)
+                checksum += data.get()[i];
+        }
 
         buffer.append(reinterpret_cast<char*>(&header), sizeof(PacketHeader)); 
-        buffer.append(data);
+        
+        if (data)
+            buffer.append(data.get());
     }
     
     static void make_write(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer) {
@@ -91,12 +96,12 @@ class Packet {
 			client.update_communication();
 
 		else if (function == orhan::Functions::WRITE_ACK) {
-		// return register id for client
-	//		client.write_ack(header->register_number);
+		    // return register id for client
+             client.write_ack(header->register_number);
 
 		} else if (function == orhan::Functions::READ_ACK) {
 			// Copy data to register number and notify to client
-	//		client.read_ack(header->register_number, data, data_len);
+    		client.read_ack(header->register_number, std::string(reinterpret_cast<char*>(data), data_len));
 		
 		} else if (function == orhan::Functions::WRITE) {
 			//clinet.write(header->register_number, data);

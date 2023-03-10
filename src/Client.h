@@ -41,6 +41,7 @@ class Client {
 
  public:
 	Client(const int socket_desctiptor, const uint32_t ip_address);
+    Client() = default;
 
 	bool is_ready();
 
