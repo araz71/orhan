@@ -11,7 +11,10 @@ namespace orhan
 
 class DatabaseInterface {
  public:
-	virtual bool add_device(uint32_t device_id) = 0;
+    const char* DATABASE_ADDRESS = "clients.db";
+    const char* CLIENT_TABLE_CREATOR = "CREATE TABLE IF NOT EXISTS CLIENT(deviceID INTEGER PRIMARY KEY)";
+
+    virtual bool add_device(uint32_t device_id) = 0;
 	virtual bool add_register(uint32_t device_id, RegisterID register_id) = 0;
 	virtual bool load_device(uint32_t device_id, std::unordered_map<RegisterID, uint8_t>& register_map) = 0;
 

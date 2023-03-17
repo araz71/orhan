@@ -6,6 +6,8 @@
 #include <mutex>
 #include <unordered_map>
 
+#include <sqlite3.h>
+
 #include "DatabaseInterface.h"
 #include "Client.h"
 
@@ -13,6 +15,8 @@ namespace orhan {
 
 class SqliteDatabase : public DatabaseInterface {
  public:
+    using DatabaseInterface::DATABASE_ADDRESS;
+
     SqliteDatabase(const SqliteDatabase&) = delete;
     SqliteDatabase(const SqliteDatabase&&) = delete;
     void operator=(const SqliteDatabase&) = delete;	
@@ -25,7 +29,8 @@ class SqliteDatabase : public DatabaseInterface {
 
     bool add_register(uint32_t device_id, RegisterID register_id);
  private:
-        SqliteDatabase();
+    sqlite3 *sqlite_db;
+    SqliteDatabase();
 };
 
 }

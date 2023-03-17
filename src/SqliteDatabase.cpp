@@ -11,8 +11,14 @@ SqliteDatabase& SqliteDatabase::get_instance() {
 }
 
 SqliteDatabase::SqliteDatabase() {
-    const char* database_address = "clients.db";
+    int ret = sqlite3_open(DATABASE_ADDRESS, &sqlite_db);
+    if (ret != SQLITE_OK)
+        throw runtime_error("Sqlite : Can't open database");
 
+    char* errmsg;
+    ret = sqlite3_exec(sqlite_db, CLIENT_TABLE_CREATOR, NULL, NULL, &errmsg);
+    if (ret != SQLITE_OK)
+        throw runtime_error("Sqlite : Error at creating clients table");
 }
 
 bool SqliteDatabase::load_device(uint32_t device_id, unordered_map<RegisterID, uint8_t>& client) {
@@ -22,6 +28,7 @@ bool SqliteDatabase::load_device(uint32_t device_id, unordered_map<RegisterID, u
 }
 
 bool SqliteDatabase::add_device(uint32_t device_id) {
+    lock.lock();
 
 }
 
