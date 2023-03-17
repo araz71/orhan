@@ -16,7 +16,7 @@ SqliteDatabase::SqliteDatabase() {
         throw runtime_error("Sqlite : Can't open database");
 
     char* errmsg;
-    ret = sqlite3_exec(sqlite_db, CLIENT_TABLE_CREATOR, NULL, NULL, &errmsg);
+    ret = sqlite3_exec(sqlite_db, DEVICE_TABLE_CREATOR, NULL, NULL, &errmsg);
     if (ret != SQLITE_OK)
         throw runtime_error("Sqlite : Error at creating clients table");
 }
@@ -29,8 +29,9 @@ bool SqliteDatabase::load_device(uint32_t device_id, unordered_map<RegisterID, u
 
 bool SqliteDatabase::add_device(uint32_t device_id) {
     lock.lock();
+    char *errmsg;
 	string command = "INSERT INTO DEVICE(deviceID) values('" + to_string(device_id) + "')";
-	int ret = sqlite3_exec(sqlite_db, command.c_str());
+	int ret = sqlite3_exec(sqlite_db, command.c_str(), NULL, NULL, &errmsg);
 	if (ret != SQLITE_OK)
 		throw runtime_error("Sqlite : Error at adding new device");
 }
