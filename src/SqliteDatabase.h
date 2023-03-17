@@ -16,6 +16,7 @@ namespace orhan {
 class SqliteDatabase : public DatabaseInterface {
  public:
     using DatabaseInterface::DATABASE_ADDRESS;
+	using DatabaseInterface::DEVICE_TABLE_CREATOR;
 
     SqliteDatabase(const SqliteDatabase&) = delete;
     SqliteDatabase(const SqliteDatabase&&) = delete;

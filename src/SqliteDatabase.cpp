@@ -29,7 +29,10 @@ bool SqliteDatabase::load_device(uint32_t device_id, unordered_map<RegisterID, u
 
 bool SqliteDatabase::add_device(uint32_t device_id) {
     lock.lock();
-
+	string command = "INSERT INTO DEVICE(deviceID) values('" + to_string(device_id) + "')";
+	int ret = sqlite3_exec(sqlite_db, command.c_str());
+	if (ret != SQLITE_OK)
+		throw runtime_error("Sqlite : Error at adding new device");
 }
 
 bool SqliteDatabase::add_register(uint32_t device_id, RegisterID register_id) {
