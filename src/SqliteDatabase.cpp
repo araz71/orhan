@@ -6,7 +6,7 @@ using namespace orhan;
 
 SqliteDatabase& SqliteDatabase::get_instance() {
 	static SqliteDatabase db{};
-    
+ 
 	return db;
 }
 
@@ -29,11 +29,14 @@ bool SqliteDatabase::load_device(uint32_t device_id, unordered_map<RegisterID, u
 
 bool SqliteDatabase::add_device(uint32_t device_id) {
     lock.lock();
+
     char *errmsg;
 	string command = "INSERT INTO DEVICE(deviceID) values('" + to_string(device_id) + "')";
 	int ret = sqlite3_exec(sqlite_db, command.c_str(), NULL, NULL, &errmsg);
 	if (ret != SQLITE_OK)
 		throw runtime_error("Sqlite : Error at adding new device");
+
+	lock.unlock();
 }
 
 bool SqliteDatabase::add_register(uint32_t device_id, RegisterID register_id) {
