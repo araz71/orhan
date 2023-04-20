@@ -1,5 +1,6 @@
 #include "Server.h"
 
+#include <iostream>
 #include <thread>
 #include <memory>
 #include <vector>
@@ -15,7 +16,7 @@
 using namespace std;
 using namespace orhan;
 
-Server::Server(uint16_t port_number) {
+Server::Server(const uint16_t port_number) {
 	server_descriptor = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_descriptor < 0)
 		throw runtime_error("Can not create socket\r\n");
@@ -41,12 +42,12 @@ void Server::accepter() {
 	socklen_t address_length = sizeof(client_addr);
 	
 	while (1) {
-		int new_client_descriptor = accept(server_descriptor, (struct sockaddr*)&client_addr,
+		const int new_client_descriptor = accept(server_descriptor, (struct sockaddr*)&client_addr,
             &address_length);
 
 		if (new_client_descriptor != -1) {
 			clients_mutex.lock();
-                        clients[new_client_descriptor] = Client(new_client_descriptor, client_addr.sin_addr.s_addr);
+            clients[new_client_descriptor] = Client(new_client_descriptor, client_addr.sin_addr.s_addr);
 			clients_mutex.unlock();
 		}
 	}
@@ -59,16 +60,16 @@ void Server::reader() {
 		this_thread::sleep_for(chrono::milliseconds(10));
 		clients_mutex.lock();
 		for (auto& client : clients) {
-			int socket_descriptor = client.first;
-			Client& client_object = client.second;
-
-			int size = recv(socket_descriptor, buffer, sizeof(buffer), MSG_DONTWAIT);
+            auto& [socket_descriptor, client_object] = client;
+			
+            const int size = recv(socket_descriptor, buffer, sizeof(buffer), MSG_DONTWAIT);
 			if (size > 0) {
 				string response;
 				if (!client_object.add_packet(buffer, size, response)) {
-					printf("Can not atach packet\r\n");
+					cout << "Can not atach packet" << endl;
+
 				} else if (response.size() > 0) {
-					size_t write_len = send(socket_descriptor, response.c_str(), response.length(), 0);
+					const size_t write_len = send(socket_descriptor, response.c_str(), response.length(), 0);
 					if (write_len < response.length()) {
 						// ERROR
 					}

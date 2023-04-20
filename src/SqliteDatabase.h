@@ -15,7 +15,7 @@
 namespace orhan {
 
 class SqliteDatabase : public DatabaseInterface {
- public:
+public:
     using DatabaseInterface::DATABASE_ADDRESS;
 	using DatabaseInterface::DEVICE_TABLE_CREATOR;
 	using DatabaseInterface::Rows;
@@ -26,18 +26,18 @@ class SqliteDatabase : public DatabaseInterface {
 
     static SqliteDatabase& get_instance();
 
-	/// See DatabaseInterface::load_device(uint32_t, std::unordered_map<RegisterID, uint8_t>)
-    bool load_device(uint32_t device_id, std::unordered_map<RegisterID, uint8_t>& register_map) override;
+	/// See DatabaseInterface::load_device(const uint32_t, std::unordered_map<RegisterID, uint8_t>)
+    bool load_device(const uint32_t device_id, std::unordered_map<RegisterID, uint8_t>& register_map) override;
 
-	/// See DatabaseInterface::add_device(uint32_t);
-    bool add_device(uint32_t device_id) override;
+	/// See DatabaseInterface::add_device(const uint32_t);
+    bool add_device(const uint32_t device_id) override;
 
-	/// See DatabaseInterface::add_register(uint32_t, RegisterID);
-    bool add_register(uint32_t device_id, RegisterID register_id) override;
+	/// See DatabaseInterface::add_register(const uint32_t, RegisterID);
+    bool add_register(const uint32_t device_id, RegisterID register_id) override;
 
-	void  update_register(uint32_t device_id, RegisterID register_id, const std::string& data) override;
+	void update_register(const uint32_t device_id, RegisterID register_id, const std::string& data) override;
 
- private:
+private:
     sqlite3 *sqlite_db;
 
 	SqliteDatabase();
@@ -50,7 +50,7 @@ class SqliteDatabase : public DatabaseInterface {
 		return 0;
 	}
 
- protected:
+protected:
 	void execute(const std::string& command) override;
 };
 

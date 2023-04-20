@@ -20,7 +20,8 @@ Client::Client(const int socket_desctiptor, const uint32_t ip_address) :
 }
 
 bool Client::is_ready() {
-    if (serial_number == 0) return false;
+    if (serial_number == 0)
+        return false;
     
     return true;
 }
@@ -31,25 +32,25 @@ bool Client::load(const uint32_t deviceID) {
 }
 
 bool Client::check_registerID(const Functions function, const RegisterID regID) {
-   auto register_flags = registers.find(regID);
+    auto register_flags = registers.find(regID);
         
-   if (register_flags == registers.end())
-	return false;
+    if (register_flags == registers.end())
+        return false;
 
-   if ((function == Functions::READ_ACK || function == Functions::WRITE)
-	   && !(register_flags->second & WRITEABLE))
-	return false;
+    if ((function == Functions::READ_ACK || function == Functions::WRITE)
+            && !(register_flags->second & WRITEABLE))
+        return false;
 
-   if (function == Functions::READ && !(register_flags->second & READABLE))
-	return false;
+    if (function == Functions::READ && !(register_flags->second & READABLE))
+        return false;
 
-   return true;
+    return true;
 }
 
 bool Client::write_ack(const RegisterID regID) {
     const auto flags = write_queue.find(regID);
     if (flags == write_queue.end())
-	return false;
+        return false;
 
     write_queue.erase(flags);
     return true;
@@ -58,7 +59,7 @@ bool Client::write_ack(const RegisterID regID) {
 bool Client::read_ack(const RegisterID regID, const string& data) {
     const auto flags = read_queue.find(regID);
     if (flags == read_queue.end())
-	return false;
+        return false;
 
     // Update data stored in database
     read_queue.erase(flags);
@@ -66,12 +67,12 @@ bool Client::read_ack(const RegisterID regID, const string& data) {
 }
 
 optional<string> Client::read(const RegisterID regID) {
-   // read from database and return value
-   return std::nullopt;
+    // read from database and return value
+    return std::nullopt;
 }
 
 void Client::set_serial_number(const uint32_t serial_number) {
-	Client::serial_number = serial_number;
+    Client::serial_number = serial_number;
 }
 
 uint32_t Client::get_serial_number() {

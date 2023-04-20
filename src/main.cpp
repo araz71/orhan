@@ -11,7 +11,7 @@ int main() {
 	const uint16_t port = 9000;
 	Server orhan(port);
    
-	srand(time(NULL));
+    srand(time(NULL));
 	SqliteDatabase& db = SqliteDatabase::get_instance();
 	db.add_device(1);//rand());
 	db.add_register(1, 10);
@@ -23,5 +23,6 @@ int main() {
 	while (1) {
 	
 	}	
+
 	return 1;
 }

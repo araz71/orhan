@@ -17,27 +17,26 @@ SqliteDatabase& SqliteDatabase::get_instance() {
 void SqliteDatabase::execute(const string& command) {
 	retrieved_rows.clear();
 
-	int ret = sqlite3_exec(sqlite_db, command.c_str(),
-			SqliteDatabase::retrieve_callback, NULL, NULL);
+	const int ret = sqlite3_exec(sqlite_db, command.c_str(), SqliteDatabase::retrieve_callback, NULL, NULL);
 	if (ret != SQLITE_OK)
 		throw runtime_error("Sqlite(" + to_string(ret) + ") : Failed to execute " + command);
 }
 
 SqliteDatabase::SqliteDatabase() {
-    int ret = sqlite3_open(DATABASE_ADDRESS, &sqlite_db);
+    const int ret = sqlite3_open(DATABASE_ADDRESS, &sqlite_db);
     if (ret != SQLITE_OK)
         throw runtime_error("Sqlite : Can't open database");
 
 	execute(DEVICE_TABLE_CREATOR);
 }
 
-bool SqliteDatabase::load_device(uint32_t device_id, unordered_map<RegisterID, uint8_t>& client) {
+bool SqliteDatabase::load_device(const uint32_t device_id, unordered_map<RegisterID, uint8_t>& client) {
 	lock.lock();
 	// Retrive data
 	lock.unlock();
 }
 
-bool SqliteDatabase::add_device(uint32_t device_id) {
+bool SqliteDatabase::add_device(const uint32_t device_id) {
     lock.lock();
 
 	string deviceID = to_string(device_id);
@@ -56,7 +55,7 @@ bool SqliteDatabase::add_device(uint32_t device_id) {
 	return true;
 }
 
-bool SqliteDatabase::add_register(uint32_t device_id, RegisterID register_id) {
+bool SqliteDatabase::add_register(const uint32_t device_id, RegisterID register_id) {
 	execute("SELECT * FROM dev_" + to_string(device_id) +
 			" WHERE registerID='" + to_string(register_id) + "'");
 	
@@ -67,7 +66,7 @@ bool SqliteDatabase::add_register(uint32_t device_id, RegisterID register_id) {
 		cout << "RegisterID is found" << endl;
 }
 
-void SqliteDatabase::update_register(uint32_t device_id, RegisterID register_id, const string& data) {
+void SqliteDatabase::update_register(const uint32_t device_id, RegisterID register_id, const string& data) {
 	execute("UPDATE dev_" + to_string(device_id) + " SET VALUE='" + 
 			data + "' WHERE registerID='" + to_string(register_id) + "'");
 }

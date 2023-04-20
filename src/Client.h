@@ -17,12 +17,12 @@ namespace orhan
 {
 
 class Client {
- private:
+private:
 	static constexpr size_t MAXIMUM_PACKET_LENGTH = 256;
 
 	typedef enum {
-            WRITEABLE = 0x01,
-            READABLE = 0x02
+        WRITEABLE = 0x01,
+        READABLE = 0x02
     } RegisterAccessFlags;
 
 	int socket_desctiptor;
@@ -38,7 +38,7 @@ class Client {
 
 	std::unordered_map<orhan::RegisterID, RegisterAccessFlags> registers;
 
- public:
+public:
 	Client(const int socket_desctiptor, const uint32_t ip_address);
     Client() = default;
 

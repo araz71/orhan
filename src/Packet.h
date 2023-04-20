@@ -14,10 +14,10 @@ namespace orhan
 {
 
 class Packet {
- private:
+private:
 
- public:
-	static void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID,
+public:
+    static void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID,
         std::optional<std::string> data, std::string& buffer)
     {
         PacketHeader header;
@@ -49,23 +49,27 @@ class Packet {
             buffer.append(data.value());
     }
     
-    static void make_write(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer) {
+    static void make_write(const uint32_t deviceID, const orhan::RegisterID regID, const std::string& data,
+        std::string& buffer)
+    {
         make(deviceID, Functions::WRITE, regID, data, buffer);
     }
     
-    static void make_write_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& buffer) {
+    static void make_write_ack(const uint32_t deviceID, const orhan::RegisterID regID, std::string& buffer) {
         make(deviceID, Functions::WRITE_ACK, regID, std::string(), buffer);
     }
 
-    static void make_read(uint32_t deviceID, orhan::RegisterID regID, std::string& buffer) {
+    static void make_read(const uint32_t deviceID, const orhan::RegisterID regID, std::string& buffer) {
         make(deviceID, Functions::READ, regID, std::string(), buffer);
     }
 
-    static void make_read_ack(uint32_t deviceID, orhan::RegisterID regID, std::string& data, std::string& buffer) {
+    static void make_read_ack(const uint32_t deviceID, const orhan::RegisterID regID,
+        const std::string& data, std::string& buffer)
+    {
         make(deviceID, Functions::READ_ACK, regID, data, buffer);
     }
 
-    static void make_heartbit(uint32_t deviceID, std::string& buffer) {
+    static void make_heartbit(const uint32_t deviceID, std::string& buffer) {
         make(deviceID, Functions::HEARTBIT, 0, std::string(), buffer);
     }
 
@@ -98,11 +102,11 @@ class Packet {
 
 		else if (function == orhan::Functions::WRITE_ACK) {
 		    // return register id for client
-             client.write_ack(header->register_number);
+            client.write_ack(header->register_number);
 
 		} else if (function == orhan::Functions::READ_ACK) {
 			// Copy data to register number and notify to client
-    		client.read_ack(header->register_number, std::string(reinterpret_cast<char*>(data), data_len));
+            client.read_ack(header->register_number, std::string(reinterpret_cast<char*>(data), data_len));
 		
 		} else if (function == orhan::Functions::WRITE) {
 			//clinet.write(header->register_number, data);
@@ -114,7 +118,6 @@ class Packet {
 			} else {
                 make_read_ack(header->serial_number, header->register_number, data, response);
 			}*/
-
 		}
 
 		return true;
