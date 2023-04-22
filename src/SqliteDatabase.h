@@ -27,13 +27,13 @@ public:
     static SqliteDatabase& get_instance();
 
 	/// See DatabaseInterface::load_device(const uint32_t, std::unordered_map<RegisterID, uint8_t>)
-    bool load_device(const uint32_t device_id, std::unordered_map<RegisterID, uint8_t>& register_map) override;
+    bool load_device(const uint32_t device_id, vector<unoredered_map<RegisterID, Register> > &register_map) override;
 
 	/// See DatabaseInterface::add_device(const uint32_t);
     bool add_device(const uint32_t device_id) override;
 
 	/// See DatabaseInterface::add_register(const uint32_t, RegisterID);
-    bool add_register(const uint32_t device_id, RegisterID register_id, RegisterType type, RegisterAccess access) override;
+    bool add_register(const uint32_t device_id, RegisterID register_id, RegisterTypes type, RegisterAccess access) override;
 
 	void update_register(const uint32_t device_id, RegisterID register_id, const std::string& data) override;
 
@@ -44,9 +44,11 @@ private:
 
 	static Rows retrieved_rows;
 	static int retrieve_callback(void *data, int argc, char **argv, char **azColName) {
-		for (int i = 0; i < argc; i++)
-			retrieved_rows[std::string(azColName[i])] = std::string(argv[i] ? argv[i] : "\0");
+        unordered_map<string, string> row;
+        for (int i = 0; i < argc; i++)
+            row[azColName[i]] = (argv[i] == NULL ? "" : argv[i]);
 
+        retrieved_rows.push_back(row);
 		return 0;
 	}
 

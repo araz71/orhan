@@ -13,7 +13,8 @@ namespace orhan
 
 class DatabaseInterface {
 public:
-    using Rows = std::unordered_map<std::string, std::string>;
+    // Each row is an unordered_map which key is columnt name and value is value of.
+    using Rows = std::vector<std::unordered_map<std::string, std::string>>;
 
     const char* DATABASE_ADDRESS = "clients.db";
     const char* DEVICE_TABLE_CREATOR = "CREATE TABLE IF NOT EXISTS DEVICE(deviceID INTEGER PRIMARY KEY)";
@@ -36,11 +37,21 @@ public:
 	 * 
 	 * @return True if register added and false if register was created before.
 	 */
-	virtual bool add_register(const uint32_t device_id, RegisterID register_id, RegisterType type, RegisterAccess access) = 0;
-	virtual bool load_device(const uint32_t device_id, std::unordered_map<RegisterID, uint8_t>& register_map) = 0;
+    virtual bool add_register(const uint32_t device_id, RegisterID register_id,
+                              RegisterTypes type, RegisterAccess access) = 0;
+
+    /**
+     * @brief Loads device's register's maps from database
+     * @param device_id Interested device
+     * @param register_map Result of registers downloaded.
+     * @return True if device found. otherwise false.
+     */
+    virtual bool load_device(const uint32_t device_id,
+                             std::vector<std::unordered_map<RegisterID, Register>>& register_map) = 0;
+
 	virtual void update_register(const uint32_t device_id, RegisterID register_id, const std::string& data) = 0;
 protected:
-	std::mutex lock;
+    std::mutex lock;
 
 	virtual void execute(const std::string& command) = 0;
 };

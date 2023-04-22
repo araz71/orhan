@@ -17,7 +17,9 @@ SqliteDatabase& SqliteDatabase::get_instance() {
 void SqliteDatabase::execute(const string& command) {
 	retrieved_rows.clear();
 
-	const int ret = sqlite3_exec(sqlite_db, command.c_str(), SqliteDatabase::retrieve_callback, NULL, NULL);
+    const int ret = sqlite3_exec(sqlite_db, command.c_str(),
+                                 SqliteDatabase::retrieve_callback, NULL, NULL);
+
 	if (ret != SQLITE_OK)
 		throw runtime_error("Sqlite(" + to_string(ret) + ") : Failed to execute " + command);
 }
@@ -30,19 +32,38 @@ SqliteDatabase::SqliteDatabase() {
 	execute(DEVICE_TABLE_CREATOR);
 }
 
-bool SqliteDatabase::load_device(const uint32_t device_id, unordered_map<RegisterID, uint8_t>& client) {
+bool SqliteDatabase::load_device(const uint32_t device_id,
+                                 vector<unoredered_map<RegisterID, Register>>& client) {
 	lock.lock();
-	// Retrive data
+
+    // Retrive data
     execute("SELECT * FROM DEVICE WHERE deviceID='" + to_string(device_id) + "'");
     if (retrieved_rows.size() == 0)
         return false;
 
-    execute("SELECT * FROM dev_" + to_string(device_id) + " WHERE deviceID='" + to_string(device_id) + "'");
+    execute("SELECT * FROM dev_" + to_string(device_id) + " WHERE deviceID='" +
+            to_string(device_id) + "'");
+
     for (auto& row : retrieved_rows) {
-        auto& [regID, regFlags, regValue] = row;
-        cout << "RegID : " << regID << " - Flags : " << regFlags << endl;
+        Register register_extracted;
+        Register regID = 0;
+        auto& [colName, value] = row;
+
+        if (colName == "regID")
+            regID = atoi(value);
+        else if (colName == "ACCESS")
+            register_extracted.access = atoi(value);
+        else if (colName == "TYPE")
+            register_extracted.type = atoi(value);
+        else if (colName == "VALUE")
+            register_extracted.value = value;
+
+        client.push_back(register_extracted);
     }
+
     lock.unlock();
+
+    return true;
 }
 
 bool SqliteDatabase::add_device(const uint32_t device_id) {
@@ -54,7 +75,7 @@ bool SqliteDatabase::add_device(const uint32_t device_id) {
 	if (retrieved_rows.size() == 0) {
 		execute("INSERT INTO DEVICE(deviceID) values('" + deviceID + "')");	
 		execute("CREATE TABLE IF NOT EXISTS dev_" + deviceID +
-				"(registerID INTEGER PRIMARY KEY,flags INTEGER,value TEXT)");
+                "(regID INTEGER PRIMARY KEY,type INTEGER,access INTEGER,value TEXT)");
 	} else {
 		cout << "Device has defined before" << endl;
 	}
@@ -64,21 +85,26 @@ bool SqliteDatabase::add_device(const uint32_t device_id) {
 	return true;
 }
 
-bool SqliteDatabase::add_register(const uint32_t device_id, RegisterID register_id, RegisterType type, RegisterAccess access) {
+bool SqliteDatabase::add_register(const uint32_t device_id, RegisterID register_id,
+                                  RegisterTypes type, RegisterAccess access)
+{
 	execute("SELECT * FROM dev_" + to_string(device_id) +
-			" WHERE registerID='" + to_string(register_id) + "'");
-	
+            " WHERE regID='" + to_string(register_id) + "'");
+
+    // Register not found.
 	if (retrieved_rows.size() == 0) 
 		execute("INSERT INTO dev_" + to_string(device_id) +
-				"(registerID,type,access,value) VALUES(" + 
+                "(regID,type,access,value) VALUES(" +
 					"'" + to_string(register_id) + "'," +
 					"'" + to_string(static_cast<int>(type)) + "'," +
 					"'" + to_string(static_cast<int>(access) + "','0')"));
 	else
-		cout << "RegisterID is found" << endl;
+        return false;
+
+    return true;
 }
 
 void SqliteDatabase::update_register(const uint32_t device_id, RegisterID register_id, const string& data) {
 	execute("UPDATE dev_" + to_string(device_id) + " SET VALUE='" + 
-			data + "' WHERE registerID='" + to_string(register_id) + "'");
+            data + "' WHERE regID='" + to_string(register_id) + "'");
 }
