@@ -1,6 +1,8 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
+#include <string>
+
 namespace orhan
 {
 
@@ -25,6 +27,12 @@ typedef enum {
 	READ_ACK,
     UNKNOWN_FUNCTION,
 } Functions;
+
+typedef struct {
+    uint16_t regID;
+    RegisterTypes type;
+    std::string value;
+} Register;
 
 }
 

@@ -33,7 +33,16 @@ SqliteDatabase::SqliteDatabase() {
 bool SqliteDatabase::load_device(const uint32_t device_id, unordered_map<RegisterID, uint8_t>& client) {
 	lock.lock();
 	// Retrive data
-	lock.unlock();
+    execute("SELECT * FROM DEVICE WHERE deviceID='" + to_string(device_id) + "'");
+    if (retrieved_rows.size() == 0)
+        return false;
+
+    execute("SELECT * FROM dev_" + to_string(device_id) + " WHERE deviceID='" + to_string(device_id) + "'");
+    for (auto& row : retrieved_rows) {
+        auto& [regID, regFlags, regValue] = row;
+        cout << "RegID : " << regID << " - Flags : " << regFlags << endl;
+    }
+    lock.unlock();
 }
 
 bool SqliteDatabase::add_device(const uint32_t device_id) {
