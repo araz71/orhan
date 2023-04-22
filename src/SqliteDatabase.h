@@ -33,7 +33,7 @@ public:
     bool add_device(const uint32_t device_id) override;
 
 	/// See DatabaseInterface::add_register(const uint32_t, RegisterID);
-    bool add_register(const uint32_t device_id, RegisterID register_id) override;
+    bool add_register(const uint32_t device_id, RegisterID register_id, RegisterType type, RegisterAccess access) override;
 
 	void update_register(const uint32_t device_id, RegisterID register_id, const std::string& data) override;
 

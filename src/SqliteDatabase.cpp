@@ -64,13 +64,16 @@ bool SqliteDatabase::add_device(const uint32_t device_id) {
 	return true;
 }
 
-bool SqliteDatabase::add_register(const uint32_t device_id, RegisterID register_id) {
+bool SqliteDatabase::add_register(const uint32_t device_id, RegisterID register_id, RegisterType type, RegisterAccess access) {
 	execute("SELECT * FROM dev_" + to_string(device_id) +
 			" WHERE registerID='" + to_string(register_id) + "'");
 	
 	if (retrieved_rows.size() == 0) 
 		execute("INSERT INTO dev_" + to_string(device_id) +
-				"(registerID,flags,value) VALUES('" + to_string(register_id) + "','0','')");
+				"(registerID,type,access,value) VALUES(" + 
+					"'" + to_string(register_id) + "'," +
+					"'" + to_string(static_cast<int>(type)) + "'," +
+					"'" + to_string(static_cast<int>(access) + "','0')"));
 	else
 		cout << "RegisterID is found" << endl;
 }

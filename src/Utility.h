@@ -28,9 +28,27 @@ typedef enum {
     UNKNOWN_FUNCTION,
 } Functions;
 
+typedef enum {
+	TYPE_UINT8_T,
+	TYPE_UINT16_T,
+	TYPE_UINT32_T,
+	TYPE_INT8_T,
+	TYPE_INT16_T,
+	TYPE_INT32_T,
+	TYPE_STRING,
+	TYPE_BINARY
+} RegisterTypes;
+
+typedef enum {
+	ACCESS_READ,
+	ACCESS_WRITE,
+	ACCESS_READ_WRITE,
+} RegisterAccess;
+
 typedef struct {
     uint16_t regID;
     RegisterTypes type;
+	RegisterAccess access;
     std::string value;
 } Register;
 
