@@ -5,6 +5,7 @@
 #include <mutex>
 #include <utility>
 #include <vector>
+#include <utility>
 
 #include "Utility.h"
 
@@ -14,7 +15,7 @@ namespace orhan
 class DatabaseInterface {
 public:
     // Each row is an unordered_map which key is columnt name and value is value of.
-    using Rows = std::vector<std::unordered_map<std::string, std::string>>;
+    using Rows = std::vector<std::pair<std::string, std::string>>;
 
     const char* DATABASE_ADDRESS = "clients.db";
     const char* DEVICE_TABLE_CREATOR = "CREATE TABLE IF NOT EXISTS DEVICE(deviceID INTEGER PRIMARY KEY)";
@@ -47,7 +48,7 @@ public:
      * @return True if device found. otherwise false.
      */
     virtual bool load_device(const uint32_t device_id,
-                             std::vector<std::unordered_map<RegisterID, Register>>& register_map) = 0;
+                             std::vector<std::pair<RegisterID, Register>>& register_map) = 0;
 
 	virtual void update_register(const uint32_t device_id, RegisterID register_id, const std::string& data) = 0;
 protected:

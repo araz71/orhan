@@ -6,6 +6,7 @@
 #include <mutex>
 #include <unordered_map>
 #include <string>
+#include <utility>
 
 #include <sqlite3.h>
 
@@ -26,8 +27,7 @@ public:
 
     static SqliteDatabase& get_instance();
 
-	/// See DatabaseInterface::load_device(const uint32_t, std::unordered_map<RegisterID, uint8_t>)
-    bool load_device(const uint32_t device_id, vector<unoredered_map<RegisterID, Register> > &register_map) override;
+    bool load_device(const uint32_t device_id, std::vector<std::pair<RegisterID, Register> > &register_map) override;
 
 	/// See DatabaseInterface::add_device(const uint32_t);
     bool add_device(const uint32_t device_id) override;
@@ -44,11 +44,9 @@ private:
 
 	static Rows retrieved_rows;
 	static int retrieve_callback(void *data, int argc, char **argv, char **azColName) {
-        unordered_map<string, string> row;
         for (int i = 0; i < argc; i++)
-            row[azColName[i]] = (argv[i] == NULL ? "" : argv[i]);
-
-        retrieved_rows.push_back(row);
+        	retrieved_rows.push_back(std::make_pair(std::string(azColName[i]), std::string(argv[i])));
+		
 		return 0;
 	}
 

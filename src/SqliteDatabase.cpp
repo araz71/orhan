@@ -1,4 +1,8 @@
 #include <iostream>
+#include <utility>
+#include <string>
+#include <vector>
+#include <unordered_map>
 
 #include "SqliteDatabase.h"
 #include "Client.h"
@@ -33,7 +37,7 @@ SqliteDatabase::SqliteDatabase() {
 }
 
 bool SqliteDatabase::load_device(const uint32_t device_id,
-                                 vector<unoredered_map<RegisterID, Register>>& client) {
+                                 vector<pair<RegisterID, Register>>& client) {
 	lock.lock();
 
     // Retrive data
@@ -46,19 +50,18 @@ bool SqliteDatabase::load_device(const uint32_t device_id,
 
     for (auto& row : retrieved_rows) {
         Register register_extracted;
-        Register regID = 0;
         auto& [colName, value] = row;
 
         if (colName == "regID")
-            regID = atoi(value);
+            register_extracted.regID = atoi(value.c_str());
         else if (colName == "ACCESS")
-            register_extracted.access = atoi(value);
+            register_extracted.access = static_cast<RegisterAccess>(atoi(value.c_str()));
         else if (colName == "TYPE")
-            register_extracted.type = atoi(value);
+            register_extracted.type = static_cast<RegisterTypes>(atoi(value.c_str()));
         else if (colName == "VALUE")
             register_extracted.value = value;
 
-        client.push_back(register_extracted);
+        client.emplace_back(make_pair(register_extracted.regID, register_extracted));
     }
 
     lock.unlock();
@@ -97,7 +100,7 @@ bool SqliteDatabase::add_register(const uint32_t device_id, RegisterID register_
                 "(regID,type,access,value) VALUES(" +
 					"'" + to_string(register_id) + "'," +
 					"'" + to_string(static_cast<int>(type)) + "'," +
-					"'" + to_string(static_cast<int>(access) + "','0')"));
+					"'" + to_string(static_cast<int>(access)) + "','0')");
 	else
         return false;
 
