@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(SQLite3 REQUIRED)
 
+add_subdirectory(test)
+
 include_directories(src)
 
 set (SOURCES "src/Client.cpp"

@@ -37,7 +37,7 @@ SqliteDatabase::SqliteDatabase() {
 }
 
 bool SqliteDatabase::load_device(const uint32_t device_id,
-                                 vector<pair<RegisterID, Register>>& client) {
+	DeviceInformation& device_info, vector<pair<RegisterID, Register>>& client) {
 	lock.lock();
 
     // Retrive data
@@ -45,13 +45,24 @@ bool SqliteDatabase::load_device(const uint32_t device_id,
     if (retrieved_rows.size() == 0)
         return false;
 
+	for (auto& row : retrieved_rows) {
+		auto& [colName, value] = row;
+		if (colName == "Type")
+			device_info.type = value;
+		else if (colName == "firmware")
+			device_info.firmware = value;
+		else if (colName == "build_date")
+			device_info.build_date = value;
+		else if (colName == "register_date")
+			device_info.register_date = value;
+	}
+
     execute("SELECT * FROM dev_" + to_string(device_id) + " WHERE deviceID='" +
             to_string(device_id) + "'");
 
     for (auto& row : retrieved_rows) {
         Register register_extracted;
         auto& [colName, value] = row;
-
         if (colName == "regID")
             register_extracted.regID = atoi(value.c_str());
         else if (colName == "ACCESS")
@@ -69,14 +80,17 @@ bool SqliteDatabase::load_device(const uint32_t device_id,
     return true;
 }
 
-bool SqliteDatabase::add_device(const uint32_t device_id) {
+bool SqliteDatabase::add_device(const uint32_t device_id, DeviceInformation& device_inf) {
     lock.lock();
 
 	string deviceID = to_string(device_id);
 	execute("SELECT * FROM DEVICE WHERE deviceID='" + deviceID + "'");
 
 	if (retrieved_rows.size() == 0) {
-		execute("INSERT INTO DEVICE(deviceID) values('" + deviceID + "')");	
+		execute("INSERT INTO DEVICE(deviceID) values('" + deviceID + "','" +
+				device_inf.type + "','" +
+				device_inf.build_date + "','" +
+				device_inf.firmware + "',''");
 		execute("CREATE TABLE IF NOT EXISTS dev_" + deviceID +
                 "(regID INTEGER PRIMARY KEY,type INTEGER,access INTEGER,value TEXT)");
 	} else {

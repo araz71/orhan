@@ -27,10 +27,11 @@ public:
 
     static SqliteDatabase& get_instance();
 
-    bool load_device(const uint32_t device_id, std::vector<std::pair<RegisterID, Register> > &register_map) override;
+    bool load_device(const uint32_t device_id, DeviceInformation& device_inf,
+		   std::vector<std::pair<RegisterID, Register> > &register_map) override;
 
 	/// See DatabaseInterface::add_device(const uint32_t);
-    bool add_device(const uint32_t device_id) override;
+    bool add_device(const uint32_t device_id, DeviceInformation device_inf) override;
 
 	/// See DatabaseInterface::add_register(const uint32_t, RegisterID);
     bool add_register(const uint32_t device_id, RegisterID register_id, RegisterTypes type, RegisterAccess access) override;

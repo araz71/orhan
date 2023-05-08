@@ -52,6 +52,11 @@ typedef struct {
     std::string value;
 } Register;
 
-}
+typedef struct {
+	std::string type;
+	std::string firmware;
+	std::string build_date;
+	std::string register_date;
+} DeviceInformation;
 
 #endif
