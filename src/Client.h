@@ -20,11 +20,6 @@ class Client {
 private:
 	static constexpr size_t MAXIMUM_PACKET_LENGTH = 256;
 
-	typedef enum {
-		WRITEABLE = 0x01,
-		READABLE = 0x02
-	} RegisterAccessFlags;
-
 	int socket_desctiptor;
 
 	uint32_t ip_address;

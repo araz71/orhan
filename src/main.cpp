@@ -1,5 +1,5 @@
 #include "Server.h"
-#include "SqliteDatabase.h"
+#include "Database.h"
 
 #include <iostream>
 
@@ -14,16 +14,19 @@ int main() {
 	Server orhan(port);
 
 	srand(time(NULL));
-	SqliteDatabase& db = SqliteDatabase::get_instance();
+
+	uint32_t deviceID = 1;
+	RegisterID reg10 = 10;
+	RegisterID reg11 = 11;
 
 	DeviceInformation inf = {"I/O", "2.1", "May 10 23", "May 10 23"};
-	db.add_device(1, inf);//rand());
-	db.add_register(1, 10, RegisterTypes::TYPE_UINT8_T, RegisterAccess::ACCESS_READ_WRITE);
-	db.add_register(1, 11, RegisterTypes::TYPE_UINT16_T, RegisterAccess::ACCESS_READ);
+	Database::add_device(deviceID, inf);
+	Database::add_register(deviceID, reg10, RegisterTypes::TYPE_UINT8_T, RegisterAccess::ACCESS_READ_WRITE);
+	Database::add_register(deviceID, reg11, RegisterTypes::TYPE_UINT16_T, RegisterAccess::ACCESS_READ);
 
 	DeviceInformation sinf;
 	RegisterList registers;
-	db.load_device(1, sinf, registers);
+	Database::load_device(deviceID, sinf, registers);
 	cout << sinf.type << " ," << sinf.build_date << " ," << sinf.firmware << " ," << sinf.register_date << endl;
 	for (auto& reg : registers) {
 		auto& regData = reg.second;

@@ -1,5 +1,5 @@
 #include "Client.h"
-#include "SqliteDatabase.h"
+#include "Database.h"
 
 #include <vector>
 #include <memory>
@@ -29,8 +29,7 @@ bool Client::is_ready() {
 
 bool Client::load(const uint32_t deviceID) {
 	// Check database. if found load all registers.
-	auto& db = SqliteDatabase::get_instance();
-	db.load_device(deviceID, device_informations, registers);
+	Database::load_device(deviceID, device_informations, registers);
 	return true;
 }
 

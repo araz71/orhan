@@ -2,6 +2,7 @@ clear
 rm -rf bin
 mkdir bin
 cd bin
+#cmake -DCMAKE_VERBOSE_MAKEFILE=on ../
 cmake ../
 make
 ./Noyan
