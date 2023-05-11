@@ -26,7 +26,7 @@ typedef enum {
 	HEARTBIT,
 	WRITE_ACK,
 	READ_ACK,
-    UNKNOWN_FUNCTION,
+	UNKNOWN_FUNCTION,
 } Functions;
 
 typedef enum {
@@ -47,10 +47,10 @@ typedef enum {
 } RegisterAccess;
 
 typedef struct {
-    uint16_t regID;
-    RegisterTypes type;
+	uint16_t regID;
+	RegisterTypes type;
 	RegisterAccess access;
-    std::string value;
+	std::string value;
 } Register;
 
 typedef struct {
