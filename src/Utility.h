@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <unordered_map>
 
 namespace orhan
 {
@@ -41,9 +42,9 @@ typedef enum {
 } RegisterTypes;
 
 typedef enum {
-	ACCESS_READ,
-	ACCESS_WRITE,
-	ACCESS_READ_WRITE,
+	ACCESS_READ = 0x01,
+	ACCESS_WRITE = 0x02,
+	ACCESS_READ_WRITE = 0x03,
 } RegisterAccess;
 
 typedef struct {
@@ -60,7 +61,7 @@ typedef struct {
 	std::string register_date;
 } DeviceInformation;
 
-using RegisterList = std::vector<std::pair<RegisterID, Register>>;
+using RegisterList = std::unordered_map<RegisterID, Register>;
 
 }
 #endif

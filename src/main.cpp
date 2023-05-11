@@ -26,8 +26,8 @@ int main() {
 	db.load_device(1, sinf, registers);
 	cout << sinf.type << " ," << sinf.build_date << " ," << sinf.firmware << " ," << sinf.register_date << endl;
 	for (auto& reg : registers) {
-		auto& [regID, regData] = reg;
-		cout << "Reg" << regID << ": [" << regData.type << " ," << regData.access << " ," << regData.value << "]" << endl;
+		auto& regData = reg.second;
+		cout << "Reg" << regData.regID << ": [" << regData.type << " ," << regData.access << " ," << regData.value << "]" << endl;
 	}
 	printf("Orhan started on port %d\r\n", port);
 	while (1) {

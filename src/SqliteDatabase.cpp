@@ -73,7 +73,7 @@ bool SqliteDatabase::load_device(const uint32_t device_id, DeviceInformation& de
 			else if (colName == "VALUE")
 				register_extracted.value = value;
 		}
-		registers.emplace_back(make_pair(register_extracted.regID, register_extracted));
+		registers[register_extracted.regID] = register_extracted;
 	}
 
 	lock.unlock();

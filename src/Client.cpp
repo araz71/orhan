@@ -1,4 +1,5 @@
 #include "Client.h"
+#include "SqliteDatabase.h"
 
 #include <vector>
 #include <memory>
@@ -28,20 +29,25 @@ bool Client::is_ready() {
 
 bool Client::load(const uint32_t deviceID) {
 	// Check database. if found load all registers.
+	auto& db = SqliteDatabase::get_instance();
+	db.load_device(deviceID, device_informations, registers);
 	return true;
 }
 
 bool Client::check_registerID(const Functions function, const RegisterID regID) {
-	auto register_flags = registers.find(regID);
+	auto reg = registers.find(regID);
 
-	if (register_flags == registers.end())
+	if (reg == registers.end())
 		return false;
 
+	auto [id, type, access, value] = reg->second;
 	if ((function == Functions::READ_ACK || function == Functions::WRITE)
-		&& !(register_flags->second & WRITEABLE))
+		&& !(access & RegisterAccess::ACCESS_WRITE))
+	{
 		return false;
+	}
 
-	if (function == Functions::READ && !(register_flags->second & READABLE))
+	if (function == Functions::READ && !(access & RegisterAccess::ACCESS_READ))
 		return false;
 
 	return true;
