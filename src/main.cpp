@@ -12,8 +12,8 @@ using namespace orhan;
 int main() {
 	const uint16_t port = 9000;
 	Server orhan(port);
-   
-    srand(time(NULL));
+
+	srand(time(NULL));
 	SqliteDatabase& db = SqliteDatabase::get_instance();
 
 	DeviceInformation inf = {"I/O", "2.1", "May 10 23", "May 10 23"};
@@ -31,7 +31,7 @@ int main() {
 	}
 	printf("Orhan started on port %d\r\n", port);
 	while (1) {
-	
+
 	}	
 
 	return 1;

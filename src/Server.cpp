@@ -23,7 +23,7 @@ Server::Server(const uint16_t port_number) {
 
 	struct sockaddr_in server_address;
 	memset(&server_address, 0, sizeof(server_address));
-	
+
 	server_address.sin_family = AF_INET;
 	server_address.sin_port = htons(port_number);
 	server_address.sin_addr.s_addr = INADDR_ANY;
@@ -40,14 +40,14 @@ Server::Server(const uint16_t port_number) {
 void Server::accepter() {
 	struct sockaddr_in client_addr;
 	socklen_t address_length = sizeof(client_addr);
-	
+
 	while (1) {
 		const int new_client_descriptor = accept(server_descriptor, (struct sockaddr*)&client_addr,
-            &address_length);
+				&address_length);
 
 		if (new_client_descriptor != -1) {
 			clients_mutex.lock();
-            clients[new_client_descriptor] = Client(new_client_descriptor, client_addr.sin_addr.s_addr);
+			clients[new_client_descriptor] = Client(new_client_descriptor, client_addr.sin_addr.s_addr);
 			clients_mutex.unlock();
 		}
 	}
@@ -55,14 +55,14 @@ void Server::accepter() {
 
 void Server::reader() {
 	uint8_t buffer[512];
-	
+
 	while(1) {
 		this_thread::sleep_for(chrono::milliseconds(10));
 		clients_mutex.lock();
 		for (auto& client : clients) {
-            auto& [socket_descriptor, client_object] = client;
-			
-            const int size = recv(socket_descriptor, buffer, sizeof(buffer), MSG_DONTWAIT);
+			auto& [socket_descriptor, client_object] = client;
+
+			const int size = recv(socket_descriptor, buffer, sizeof(buffer), MSG_DONTWAIT);
 			if (size > 0) {
 				string response;
 				if (!client_object.add_packet(buffer, size, response)) {

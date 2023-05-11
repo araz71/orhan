@@ -14,11 +14,11 @@ namespace orhan
 
 class DatabaseInterface {
 public:
-    using Row = std::vector<std::pair<std::string, std::string>>;
+	using Row = std::vector<std::pair<std::string, std::string>>;
 	using Rows = std::vector<Row>;
 
-    const char* DATABASE_ADDRESS = "clients.db";
-    const char* DEVICE_TABLE_CREATOR = "CREATE TABLE IF NOT EXISTS"
+	const char* DATABASE_ADDRESS = "clients.db";
+	const char* DEVICE_TABLE_CREATOR = "CREATE TABLE IF NOT EXISTS"
 		" DEVICE(deviceID INTEGER PRIMARY KEY, Type TEXT, build_date TEXT, firmware TEXT, register_date TEXT)";
 
 	/**
@@ -28,7 +28,7 @@ public:
 	 * @param device_inf Decice information
 	 * @return True if device added and false if it was created before.
 	 */
-    virtual bool add_device(const uint32_t device_id, const DeviceInformation& device_inf) = 0;
+	virtual bool add_device(const uint32_t device_id, const DeviceInformation& device_inf) = 0;
 
 	/**
 	 * Adds register to existed device
@@ -40,17 +40,17 @@ public:
 	 * 
 	 * @return True if register added and false if register was created before.
 	 */
-    virtual bool add_register(const uint32_t device_id, const RegisterID register_id,
-                              const RegisterTypes type, const RegisterAccess access) = 0;
+	virtual bool add_register(const uint32_t device_id, const RegisterID register_id,
+		const RegisterTypes type, const RegisterAccess access) = 0;
 
-    /**
-     * @brief Loads device's register's maps from database
-     * @param device_id Interested device
+	/**
+	 * @brief Loads device's register's maps from database
+	 * @param device_id Interested device
 	 * @param device_inf Device Information
-     * @param register_map Result of registers downloaded.
-     * @return True if device found. otherwise false.
-     */
-    virtual bool load_device(const uint32_t device_id, DeviceInformation& device_inf, RegisterList& registers) = 0;
+	 * @param register_map Result of registers downloaded.
+	 * @return True if device found. otherwise false.
+	 */
+	virtual bool load_device(const uint32_t device_id, DeviceInformation& device_inf, RegisterList& registers) = 0;
 
 	/**
 	 * @brief Updates value of interested register
@@ -60,7 +60,7 @@ public:
 	 */
 	virtual void update_register(const uint32_t device_id, const RegisterID register_id, const std::string& data) = 0;
 protected:
-    std::mutex lock;
+	std::mutex lock;
 
 	virtual void execute(const std::string& command) = 0;
 };

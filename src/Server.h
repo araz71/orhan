@@ -16,7 +16,7 @@ namespace orhan
 
 class Server {
 private:
-    std::unique_ptr<std::thread> accepter_thread;
+	std::unique_ptr<std::thread> accepter_thread;
 	std::unique_ptr<std::thread> reader_thread;
 	std::unique_ptr<std::thread> writer_thread;
 
@@ -24,7 +24,7 @@ private:
 
 	int number_of_clients;
 
-    std::unordered_map<int, orhan::Client> clients;
+	std::unordered_map<int, orhan::Client> clients;
 	std::mutex clients_mutex;
 
 	void accepter();
