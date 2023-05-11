@@ -105,8 +105,10 @@ public:
     // Returns last clients communication timestamp
 	time_t get_last_communication_timestamp();
 	
+	// Returns client ip address
 	uint32_t get_ip_address();
 	
+	// Returns socket descriptor of client.
 	int get_descriptor();
 	
 	bool add_packet(const uint8_t* packet, const size_t len, std::string& response);

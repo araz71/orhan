@@ -19,6 +19,7 @@ class SqliteDatabase : public DatabaseInterface {
 public:
     using DatabaseInterface::DATABASE_ADDRESS;
 	using DatabaseInterface::DEVICE_TABLE_CREATOR;
+	using DatabaseInterface::Row;
 	using DatabaseInterface::Rows;
 
     SqliteDatabase(const SqliteDatabase&) = delete;
@@ -27,16 +28,17 @@ public:
 
     static SqliteDatabase& get_instance();
 
-    bool load_device(const uint32_t device_id, DeviceInformation& device_inf,
-		   std::vector<std::pair<RegisterID, Register> > &register_map) override;
+	bool load_device(const uint32_t device_id, DeviceInformation& device_inf,
+			RegisterList &registers) override;
 
 	/// See DatabaseInterface::add_device(const uint32_t);
-    bool add_device(const uint32_t device_id, DeviceInformation device_inf) override;
+    bool add_device(const uint32_t device_id, const DeviceInformation& device_inf) override;
 
 	/// See DatabaseInterface::add_register(const uint32_t, RegisterID);
-    bool add_register(const uint32_t device_id, RegisterID register_id, RegisterTypes type, RegisterAccess access) override;
+    bool add_register(const uint32_t device_id, const RegisterID register_id, 
+			const RegisterTypes type, const RegisterAccess access) override;
 
-	void update_register(const uint32_t device_id, RegisterID register_id, const std::string& data) override;
+	void update_register(const uint32_t device_id, const RegisterID register_id, const std::string& data) override;
 
 private:
     sqlite3 *sqlite_db;
@@ -45,9 +47,11 @@ private:
 
 	static Rows retrieved_rows;
 	static int retrieve_callback(void *data, int argc, char **argv, char **azColName) {
-        for (int i = 0; i < argc; i++)
-        	retrieved_rows.push_back(std::make_pair(std::string(azColName[i]), std::string(argv[i])));
-		
+		Row row;
+		for (int i = 0; i < argc; i++)
+			row.emplace_back(std::make_pair(std::string(azColName[i]), std::string(argv[i])));
+
+		retrieved_rows.push_back(row);
 		return 0;
 	}
 

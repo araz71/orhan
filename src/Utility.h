@@ -2,6 +2,8 @@
 #define UTILITY_H_
 
 #include <string>
+#include <vector>
+#include <utility>
 
 namespace orhan
 {
@@ -12,7 +14,6 @@ using RegisterID = uint16_t;
 
 typedef struct {
 	uint32_t serial_number;
-
 	uint8_t function;
 	uint16_t register_number;
 	uint16_t len;
@@ -59,4 +60,7 @@ typedef struct {
 	std::string register_date;
 } DeviceInformation;
 
+using RegisterList = std::vector<std::pair<RegisterID, Register>>;
+
+}
 #endif

@@ -17,7 +17,7 @@ class Packet {
 private:
 
 public:
-    static void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID,
+	static void make(uint32_t deviceID, orhan::Functions function, orhan::RegisterID regID,
         std::optional<std::string> data, std::string& buffer)
     {
         PacketHeader header;
@@ -87,7 +87,7 @@ public:
 			return false;
 				
 		// Check for deviceID
-		if (!client.is_ready() && !client.load(header->serial_number)) return false;
+//		if (!client.is_ready() && !client.load(header->serial_number)) return false;
 
 		// Check for register number and function access
 		if (!client.check_registerID(static_cast<orhan::Functions>(header->function), header->register_number))
