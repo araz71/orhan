@@ -109,7 +109,7 @@ public:
 			client.read_ack(header->register_number, std::string(reinterpret_cast<char*>(data), data_len));
 
 		} else if (function == orhan::Functions::WRITE) {
-			//clinet.write(header->register_number, data);
+			client.write(header->register_number, std::string(reinterpret_cast<char*>(data), data_len));
 			make_write_ack(header->serial_number, header->register_number, response);
 
 		} else if (function == orhan::Functions::READ) {

@@ -65,14 +65,13 @@ void Server::reader() {
 			const int size = recv(socket_descriptor, buffer, sizeof(buffer), MSG_DONTWAIT);
 			if (size > 0) {
 				string response;
-				if (!client_object.add_packet(buffer, size, response)) {
+				if (!client_object.handle_packet(buffer, size, response)) {
 					cout << "Can not atach packet" << endl;
 
 				} else if (response.size() > 0) {
-					const size_t write_len = send(socket_descriptor, response.c_str(), response.length(), 0);
-					if (write_len < response.length()) {
-						// ERROR
-					}
+					const size_t write_len = send(socket_descriptor, response.c_str(),
+							response.length(), MSG_DONTWAIT);
+					client_object.update_communication();
 				}
 			}
 		}

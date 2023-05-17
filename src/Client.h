@@ -1,14 +1,14 @@
 #ifndef _CLIENT_H_
 #define _CLIENT_H_
 
+#include "Packet.h"
+#include "Utility.h"
+
 #include <vector>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <optional>
-
-#include "Packet.h"
-#include "Utility.h"
 
 #include <time.h>
 #include <stdint.h>
@@ -88,6 +88,15 @@ public:
 	*/
 	bool check_registerID(const orhan::Functions function, const orhan::RegisterID regID);
 
+	/**
+	 * Write data into value of register
+	 *
+	 * @param regID intersted register identifier
+	 * @param data Data to store in value of register
+	 * @return nullopt if register does not found. otherwise write acknowledge packet.
+	 */
+	bool write(const orhan::RegisterID regID, std::string& data);
+
 	// Sets clients serial number
 	void set_serial_number(const uint32_t serial_number);
 
@@ -106,7 +115,7 @@ public:
 	// Returns socket descriptor of client.
 	int get_descriptor();
 
-	bool add_packet(const uint8_t* packet, const size_t len, std::string& response);
+	bool handle_packet(const uint8_t* packet, const size_t len, std::string& response);
 };
 
 }

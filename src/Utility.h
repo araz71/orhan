@@ -63,5 +63,7 @@ typedef struct {
 
 using RegisterList = std::unordered_map<RegisterID, Register>;
 
+#define DEVICE_LOGIN_REGISTER		1024
+
 }
 #endif

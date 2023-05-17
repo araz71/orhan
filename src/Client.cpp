@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <optional>
+#include <tuple>
 
 #include <string.h>
 
@@ -17,7 +18,7 @@ Client::Client(const int socket_desctiptor, const uint32_t ip_address) :
 	ip_address(ip_address),
 	serial_number(0)
 {
-
+	registers[DEVICE_LOGIN_REGISTER] = {DEVICE_LOGIN_REGISTER, RegisterTypes::TYPE_BINARY, RegisterAccess::ACCESS_WRITE, string()};
 }
 
 bool Client::is_ready() {
@@ -29,8 +30,7 @@ bool Client::is_ready() {
 
 bool Client::load(const uint32_t deviceID) {
 	// Check database. if found load all registers.
-	Database::load_device(deviceID, device_informations, registers);
-	return true;
+	return Database::load_device(deviceID, device_informations, registers);
 }
 
 bool Client::check_registerID(const Functions function, const RegisterID regID) {
@@ -68,6 +68,10 @@ bool Client::read_ack(const RegisterID regID, const string& data) {
 
 	// Update data stored in database
 	read_queue.erase(flags);
+	auto& reg = registers[regID];
+	auto& [id, type, access, value] = reg;
+	value = data;
+
 	return true;
 }
 
@@ -76,6 +80,17 @@ optional<string> Client::read(const RegisterID regID) {
 	return std::nullopt;
 }
 
+bool Client::write(const RegisterID regID, string& data) {
+	auto reg = registers.find(regID);
+
+	if (reg == registers.end())
+		return false;
+
+	string& value = reg->second.value;
+	value = data;
+
+	return true;
+}
 void Client::set_serial_number(const uint32_t serial_number) {
 	Client::serial_number = serial_number;
 }
@@ -100,7 +115,7 @@ int Client::get_descriptor() {
 	return socket_desctiptor;
 }
 
-bool Client::add_packet(const uint8_t* packet, const size_t size, string& response) {
+bool Client::handle_packet(const uint8_t* packet, const size_t size, string& response) {
 	if (size > MAXIMUM_PACKET_LENGTH)
 		return false;
 
