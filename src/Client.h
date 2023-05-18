@@ -88,15 +88,6 @@ public:
 	*/
 	bool check_registerID(const orhan::Functions function, const orhan::RegisterID regID);
 
-	/**
-	 * Write data into value of register
-	 *
-	 * @param regID intersted register identifier
-	 * @param data Data to store in value of register
-	 * @return nullopt if register does not found. otherwise write acknowledge packet.
-	 */
-	bool write(const orhan::RegisterID regID, std::string& data);
-
 	// Sets clients serial number
 	void set_serial_number(const uint32_t serial_number);
 

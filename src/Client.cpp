@@ -80,7 +80,7 @@ optional<string> Client::read(const RegisterID regID) {
 	return std::nullopt;
 }
 
-bool Client::write(const RegisterID regID, string& data) {
+bool Client::write(const RegisterID regID, const string& data) {
 	auto reg = registers.find(regID);
 
 	if (reg == registers.end())
