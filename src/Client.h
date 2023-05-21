@@ -105,8 +105,6 @@ public:
 
 	// Returns socket descriptor of client.
 	int get_descriptor();
-
-	bool handle_packet(const uint8_t* packet, const size_t len, std::string& response);
 };
 
 }

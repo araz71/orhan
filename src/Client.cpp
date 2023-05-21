@@ -91,6 +91,7 @@ bool Client::write(const RegisterID regID, const string& data) {
 
 	return true;
 }
+
 void Client::set_serial_number(const uint32_t serial_number) {
 	Client::serial_number = serial_number;
 }
@@ -113,11 +114,4 @@ uint32_t Client::get_ip_address() {
 
 int Client::get_descriptor() {
 	return socket_desctiptor;
-}
-
-bool Client::handle_packet(const uint8_t* packet, const size_t size, string& response) {
-	if (size > MAXIMUM_PACKET_LENGTH)
-		return false;
-
-	return Packet::analys<Client>(packet, size, response, *this);
 }

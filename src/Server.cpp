@@ -65,7 +65,7 @@ void Server::reader() {
 			const int size = recv(socket_descriptor, buffer, sizeof(buffer), MSG_DONTWAIT);
 			if (size > 0) {
 				string response;
-				if (!client_object.handle_packet(buffer, size, response)) {
+				if (!Packet::analys<Client>(buffer, size, response, client.second)) { 
 					cout << "Can not atach packet" << endl;
 
 				} else if (response.size() > 0) {
