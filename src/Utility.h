@@ -9,9 +9,11 @@
 namespace orhan
 {
 
-using RegisterID = uint16_t;
+#define MAXIMUM_PACKET_SIZE     	256
+#define DEVICE_LOGIN_REGISTER		1024
 
-#define MAXIMUM_PACKET_SIZE     256
+using RegisterID = uint16_t;
+using StringList = std::vector<std::string>;
 
 typedef struct {
 	uint32_t serial_number;
@@ -63,7 +65,13 @@ typedef struct {
 
 using RegisterList = std::unordered_map<RegisterID, Register>;
 
-#define DEVICE_LOGIN_REGISTER		1024
+inline void split_strings(std::string base_string, std::string spliter, StringList& return_value) {
+	while (base_string.find(spliter) != std::string::npos) {
+		return_value.emplace_back(base_string.substr(0, base_string.find(spliter)));
+		base_string = base_string.substr(base_string.find(spliter) + 1, base_string.length());
+	}
+	return_value.emplace_back(base_string);
+}
 
 }
 #endif
