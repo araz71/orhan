@@ -26,9 +26,6 @@ class CLI {
 public:
 	using CommandCallback = std::function<void([[maybe_unused]] StringList&)>;
 
-	CLI(const CLI&) = delete;
-	CLI& operator=(const CLI&) = delete;
-
 	const char *LOGIN_FAILED = "Wrong username or password entered\r\n";
 	const char *LOGIN_OK = "Loggined\r\n";
 	const char *COMMAND_NOT_FOUND = "Command not found\r\n";
@@ -38,6 +35,9 @@ public:
 			"command > "
 	};
 	const char *LESS_ARGUMENTS = "Number of entered aruments is invalid";
+
+	CLI(const CLI&) = delete;
+	CLI& operator=(const CLI&) = delete;
 
 	void response_to_client(const char* message) {
 		send(client_socket_descriptor, message, strlen(message), 0);
@@ -57,12 +57,12 @@ public:
 
 	void run_command(StringList& args) {
 		auto selected_command = std::find_if(command_map.begin(), command_map.end(), [&args](
-					std::pair<std::pair<std::string, std::string>, CommandCallback> cmd)
+					std::pair<StringPair, CommandCallback> cmd)
 		{
-				if (cmd.first.first == args[0])
-					return true;
+			if (cmd.first.first == args[0])
+				return true;
 
-				return false;
+			return false;
 		});
 
 		if (selected_command != command_map.end())
@@ -75,7 +75,7 @@ public:
 		struct sockaddr_in addr;
 		socklen_t addr_len = sizeof(addr);
 		int state = 0;	
-		
+	
 		while (1) {
 			client_socket_descriptor = accept(cli_socket_descriptor, reinterpret_cast<struct sockaddr*>(&addr), &addr_len);
 
@@ -91,7 +91,6 @@ public:
 					if (len > 0) {
 						collect(buffer, len);
 
-						// Handle message
 						if (state == 0) {
 							username = command;
 							state++;
@@ -134,7 +133,8 @@ private:
 
 	std::unique_ptr<std::thread> cli_thread;
 
-	std::map<std::pair<std::string, std::string>, CommandCallback> command_map;
+	/// Map to keep commands title, description and function callback
+	std::map<StringPair, CommandCallback> command_map;
 
 	CLI() {
 		cli_socket_descriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -179,15 +179,27 @@ private:
 		};
 
 		command_map[std::make_pair("add-register", "Adds new register to device")] = [](StringList& args) {
-			std::cout << "You wanna add register" << std::endl;
+			if (args.size() != 5)
+				response_to_client(LESS_ARGUMENTS);
+			else {
+				uint32_t device_id = std::stoi(args[1]);
+				RegisterID regID = static_cast<RegisterID>(std::stoi(args[2]));
+				RegisterType type;
+				if (!convert_string_to_register_type(args[3], type)) {
+					response_to_client("Unknown register type");
+					return;
+				}
+
+				
+
 		};
 
-		command_map[std::make_pair("exit", "Exits from CLI")] = [this]([[unused]] StringList& args) {
+		command_map[std::make_pair("exit", "Exits from CLI")] = [this](StringList& args) {
 			response_to_client("ByBy\r\n");
 			close(client_socket_descriptor);
 		};
 
-		command_map[std::make_pair("help", "Prints all avaliable commands")] = [this]([[unused]] StringList& args) {
+		command_map[std::make_pair("help", "Prints all avaliable commands")] = [this]( StringList& args) {
 			for (auto& command : command_map) {
 				auto [title, description] = command.first;
 

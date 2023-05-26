@@ -14,6 +14,7 @@ namespace orhan
 
 using RegisterID = uint16_t;
 using StringList = std::vector<std::string>;
+using StringPair = std::pair<std::string, std::string>;
 
 typedef struct {
 	uint32_t serial_number;
@@ -64,6 +65,25 @@ typedef struct {
 } DeviceInformation;
 
 using RegisterList = std::unordered_map<RegisterID, Register>;
+
+constexpr bool convert_string_to_register_type(std::string& string_type, RegisterTypes& register_type) {
+	std::unordered_map<std::string, RegisterTypes> types_map;
+
+	types_map["uint8"] = RegisterTypes::TYPE_UINT8_T;
+	types_map["uint16"] = RegisterTypes::TYPE_UINT16_T;
+	types_map["uint32"] = RegisterTypes::TYPE_UINT32_T;
+	types_map["int8"] = RegisterTypes::TYPE_INT8_T;
+	types_map["int16"] = RegisterTypes::TYPE_INT16_T;
+	types_map["int32"] = RegisterTypes::TYPE_INT32_T;
+	types_map["string"] = RegisterTypes::TYPE_STRING;
+	types_map["raw"] = RegisterTypes::TYPE_BINARY;
+
+	if (types_map.find(string_type) == types_map.end())
+		return false;
+
+	register_type = types_map[string_type];
+	return true;
+}
 
 inline void split_strings(std::string base_string, std::string spliter, StringList& return_value) {
 	while (base_string.find(spliter) != std::string::npos) {
