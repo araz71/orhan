@@ -34,7 +34,7 @@ public:
 			"password > ",
 			"command > "
 	};
-	const char *LESS_ARGUMENTS = "Number of entered aruments is invalid";
+	const char *LESS_ARGUMENTS = "Number of entered aruments is invalid\r\n";
 
 	CLI(const CLI&) = delete;
 	CLI& operator=(const CLI&) = delete;
@@ -153,7 +153,10 @@ private:
 		if (listen(cli_socket_descriptor, 1) < 0)
 			throw std::runtime_error("CLI : Can not listen");
 
-		command_map[std::make_pair("add-device", "Adds new device to database.")] = [this](StringList& args) {
+		command_map[std::make_pair("add-device", "Adds new device to database.\r\n"
+				"\t\tdevice_id : Unique possitive integer\r\n"
+				"\t\ttype : Device type")] = [this](StringList& args)
+		{
 			if (args.size() != 3)
 				response_to_client(LESS_ARGUMENTS);
 			else {
@@ -178,21 +181,42 @@ private:
 			std::cout << "you wanna remove" << std::endl;
 		};
 
-		command_map[std::make_pair("add-register", "Adds new register to device")] = [](StringList& args) {
+		command_map[std::make_pair("add-register", "Adds new register to device.\r\n"
+				"\t\tdevice_id : ID of interested device\r\n"
+				"\t\tregister_id : ID of new register\r\n"
+				"\t\tregister_type : Type of register. uint8/16/32 or int8/16/32, string and raw is acceptable")] = [this](StringList& args)
+		{
 			if (args.size() != 5)
 				response_to_client(LESS_ARGUMENTS);
 			else {
 				uint32_t device_id = std::stoi(args[1]);
 				RegisterID regID = static_cast<RegisterID>(std::stoi(args[2]));
-				RegisterType type;
+				RegisterTypes type;
 				if (!convert_string_to_register_type(args[3], type)) {
-					response_to_client("Unknown register type");
+					response_to_client("Unknown register type\r\n");
 					return;
 				}
-
 				
-
+				RegisterAccess access;
+				if (!convert_string_to_register_access(args[4], access)) {
+					response_to_client("Unknown register access\r\n");
+					return;
+				}
+				
+				if (!Database::add_register(device_id, regID, type, access))
+					response_to_client("Can not add register. maybe device is not found or register is set before.\r\n");
+				else
+					response_to_client("Register added to device successfully\r\n");
+			}
 		};
+
+		command_map[std::make_pair("del-reg", "Removes selected register from interested device\r\n"
+		"\t\tdevice_id : ID of interested device\r\n"
+		"\t\tregister_id : ID of interested register")] = [this](StringList& args)
+		{
+			
+		}
+
 
 		command_map[std::make_pair("exit", "Exits from CLI")] = [this](StringList& args) {
 			response_to_client("ByBy\r\n");
@@ -207,7 +231,7 @@ private:
 				help_message += title;
 				help_message += " : ";
 				help_message += description;
-				help_message += "\r\n";
+				help_message += "\r\n\r\n";
 
 				response_to_client(help_message.c_str());
 			}

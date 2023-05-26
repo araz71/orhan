@@ -66,7 +66,7 @@ typedef struct {
 
 using RegisterList = std::unordered_map<RegisterID, Register>;
 
-constexpr bool convert_string_to_register_type(std::string& string_type, RegisterTypes& register_type) {
+inline bool convert_string_to_register_type(std::string& string_type, RegisterTypes& register_type) {
 	std::unordered_map<std::string, RegisterTypes> types_map;
 
 	types_map["uint8"] = RegisterTypes::TYPE_UINT8_T;
@@ -82,6 +82,20 @@ constexpr bool convert_string_to_register_type(std::string& string_type, Registe
 		return false;
 
 	register_type = types_map[string_type];
+	return true;
+}
+
+inline bool convert_string_to_register_access(std::string& string_access, RegisterAccess& access) {
+	std::unordered_map<std::string, RegisterAccess> access_map;
+
+	access_map["read"] = RegisterAccess::ACCESS_READ;
+	access_map["write"] = RegisterAccess::ACCESS_WRITE;
+	access_map["read_write"] = RegisterAccess::ACCESS_READ_WRITE;
+
+	if (access_map.find(string_access) == access_map.end())
+		return false;
+
+	access = access_map[string_access];
 	return true;
 }
 

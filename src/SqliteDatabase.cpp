@@ -96,7 +96,8 @@ bool SqliteDatabase::add_device(const uint32_t device_id, const DeviceInformatio
 		execute("CREATE TABLE IF NOT EXISTS dev_" + deviceID +
 				"(regID INTEGER PRIMARY KEY,type INTEGER,access INTEGER,value TEXT)");
 	} else {
-		cout << "Device has defined before" << endl;
+		lock.unlock();
+		return false;
 	}
 
 	lock.unlock();
@@ -117,8 +118,7 @@ bool SqliteDatabase::add_register(const uint32_t device_id, const RegisterID reg
 				"'" + to_string(register_id) + "'," +
 				"'" + to_string(static_cast<int>(type)) + "'," +
 				"'" + to_string(static_cast<int>(access)) + "','0')");
-	else
-		return false;
+	else return false;
 
 	return true;
 }
