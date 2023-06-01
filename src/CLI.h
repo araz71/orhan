@@ -214,9 +214,7 @@ private:
 		"\t\tdevice_id : ID of interested device\r\n"
 		"\t\tregister_id : ID of interested register")] = [this](StringList& args)
 		{
-			
-		}
-
+		};
 
 		command_map[std::make_pair("exit", "Exits from CLI")] = [this](StringList& args) {
 			response_to_client("ByBy\r\n");
