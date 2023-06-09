@@ -105,6 +105,14 @@ bool SqliteDatabase::add_device(const uint32_t device_id, const DeviceInformatio
 	return true;
 }
 
+bool SqliteDatabase::remove_device(const uint32_t device_id) {
+	lock.lock();
+	string deviceID = to_string(device_id);
+	execute("DELETE FROM DEVICE WHERE deviceID='" + deviceID + "'");
+	lock.unlock();
+	return true;
+}
+
 bool SqliteDatabase::add_register(const uint32_t device_id, const RegisterID register_id,
 	const RegisterTypes type, const RegisterAccess access)
 {

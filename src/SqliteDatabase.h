@@ -34,6 +34,9 @@ public:
 	/// See DatabaseInterface::add_device(const uint32_t);
 	bool add_device(const uint32_t device_id, const DeviceInformation& device_inf) override;
 
+	/// See DatabaseInterface::remove_device(const uint32_t);
+	bool remove_device(const uint32_t device_id);
+	
 	/// See DatabaseInterface::add_register(const uint32_t, RegisterID);
 	bool add_register(const uint32_t device_id, const RegisterID register_id, 
 			const RegisterTypes type, const RegisterAccess access) override;

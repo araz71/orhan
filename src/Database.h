@@ -3,9 +3,10 @@
 
 #include "DatabaseWrapper.h"
 #include "SqliteDatabase.h"
+#include "RedisDatabase.h"
 
 namespace orhan
 {
-using Database = DatabaseWrapper<SqliteDatabase>;
+using Database = DatabaseWrapper<RedisDatabase>;
 }
 #endif

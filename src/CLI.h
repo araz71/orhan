@@ -101,6 +101,7 @@ public:
 							{
 								response_to_client(LOGIN_OK);
 							} else {
+								std::cout << "You entered : username[" << username << "], password[" << password << "]" << std::endl;
 								state = 0;
 								response_to_client(LOGIN_FAILED);
 								close(client_socket_descriptor);
