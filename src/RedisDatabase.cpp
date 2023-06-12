@@ -35,7 +35,7 @@ void RedisDatabase::add_field(const uint32_t device_id, const std::string& field
 		throw runtime_error("Can not add field to database.");
 	}
 
-	if (reply->type != REDIS_REPLY_STRING) {
+	if (reply->type != REDIS_REPLY_INTEGER) {
 		throw runtime_error("Error at redis reply for add_field");
 	}
 }
@@ -112,4 +112,5 @@ void RedisDatabase::update_register(const uint32_t device_id, const RegisterID r
 
 void RedisDatabase::execute(const std::string& command) {
 	
+
 }

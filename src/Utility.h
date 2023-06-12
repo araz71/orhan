@@ -15,6 +15,7 @@ namespace orhan
 using RegisterID = uint16_t;
 using StringList = std::vector<std::string>;
 using StringPair = std::pair<std::string, std::string>;
+using FieldValuePair = StringPair;
 
 typedef struct {
 	uint32_t serial_number;

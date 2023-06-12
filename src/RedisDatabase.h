@@ -62,13 +62,24 @@ public:
 		m_reply = reinterpret_cast<redisReply*>(const_cast<void*>(reply));
 	}
 
-	RedisReply()
+	explicit RedisReply()
 	: m_reply(NULL)
 	{
 	}
 
+	void operator=(void* reply) {
+		m_reply = reinterpret_cast<redisReply*>(reply);
+	}
+
 	redisReply* operator->() {
 		return m_reply;
+	}
+
+	bool operator()() {
+		if (m_reply != NULL) {
+			return true;
+		}
+		return false;
 	}
 
 	bool operator==(void* arg) {
@@ -77,6 +88,34 @@ public:
 		}
 		return false;
 	}
+
+	bool is_status() {
+		if (this->operator()()) {
+			if (m_reply->type == REDIS_REPLY_STATUS) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	std::optional<int> is_integer() {
+		if (this->operator()()) {
+			if (m_reply->type == REDIS_REPLY_INTEGER) {
+				return std::optional<int>(m_reply->integer);
+			}
+		}
+		return std::nullopt;	
+	}
+
+	std::optional<std::string> is_string() {
+		if (this->operator()()) {
+			if (m_reply->type == REDIS_REPLY_STRING) {
+				return std::optional<std::string>(std::string(m_reply->str, m_reply->len));
+			}
+		}
+	}
+
+	//optional<std::vector<FieldValuePair>> is_array();
 
 	~RedisReply() {
 		if (m_reply != NULL) {
