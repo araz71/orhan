@@ -115,7 +115,17 @@ public:
 		}
 	}
 
-	//optional<std::vector<FieldValuePair>> is_array();
+	std::optional<std::vector<FieldValuePair>> is_array() {
+		/*if (this->operator()()) {
+			if (m_reply->type == REDIS_REPLY_ARRAY) {
+				vector<FieldValuePair> field_values;
+				for (size_t counter = 0; counter < m_reply->elements; counter++) {
+					redisReply* reply = m_reply[counter];
+					field_values.push_back(std::string(reply->str, reply->len), std:
+			}
+		}*/
+		return std::nullopt;
+	}
 
 	~RedisReply() {
 		if (m_reply != NULL) {
