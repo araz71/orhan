@@ -35,14 +35,14 @@ public:
 	bool add_device(const uint32_t device_id, const DeviceInformation& device_inf) override;
 
 	/// See DatabaseInterface::remove_device(const uint32_t);
-	bool remove_device(const uint32_t device_id);
+	bool remove_device(const uint32_t device_id) override;
 	
 	/// See DatabaseInterface::add_register(const uint32_t, RegisterID);
 	bool add_register(const uint32_t device_id, const RegisterID register_id, 
 			const RegisterTypes type, const RegisterAccess access) override;
 
 	void update_register(const uint32_t device_id, const RegisterID register_id, const std::string& data) override;
-
+	void remove_register(const uint32_t device_id, const RegisterID register_id) override;
 private:
 	sqlite3 *sqlite_db;
 
@@ -60,7 +60,7 @@ private:
 	}
 
 protected:
-	void execute(const std::string& command) override;
+	void execute(const std::string& command);
 };
 
 }

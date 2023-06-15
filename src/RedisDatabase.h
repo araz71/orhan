@@ -27,7 +27,9 @@ public:
 	bool add_register(const uint32_t device_id, const RegisterID register_id,
 			const RegisterTypes type, const RegisterAccess access) override;
 	bool load_device(const uint32_t device_id, DeviceInformation& device_inf, RegisterList& registers) override;
+	bool remove_device(const uint32_t device_id) override; 
 	void update_register(const uint32_t device_id, const RegisterID register_id, const std::string& data) override;
+	void remove_register(const uint32_t device_id, const RegisterID register_id) override;
 
 	static RedisDatabase& get_instance();
 
@@ -37,18 +39,18 @@ private:
 	redisContext* redis_context;
 
 protected:
-	void execute(const std::string& command);
+	// Adds or changes field to/of key
+	void add_field(const std::string& key, const std::string& field_name, const std::string& value);
 
-	// Adds or changes field to/of device
-	void add_field(const uint32_t device_id, const std::string& field_name,
-		const std::string& value);
+	// Removes field from a key
+	void remove_field(const std::string& key, const std::string& field_name);
 
-	void remove_field(const uint32_t device_id, const std::string& field_name);
+	// Retrieves field value from given key
+	std::optional<std::string> get_field(const std::string& key, const std::string& field_name);
 
-	// Retrieves field value from given device
-	std::optional<std::string> get_field(const uint32_t device_id, const std::string& field_name);
-
-	std::optional<std::vector<FieldValuePair>> get_fields(const uint32_t device_id);
+	// Retrieves all fields and values from given key
+	std::optional<std::vector<FieldValuePair>> get_fields(const std::string& key);
+	void remove_key(const std::string& key);
 };
 
 class RedisReply {
@@ -98,7 +100,7 @@ public:
 		return false;
 	}
 
-	std::optional<int> is_integer() {
+	std::optional<int> is_integer(int expected_value = -1) {
 		if (this->operator()()) {
 			if (m_reply->type == REDIS_REPLY_INTEGER) {
 				return std::optional<int>(m_reply->integer);
@@ -116,14 +118,20 @@ public:
 	}
 
 	std::optional<std::vector<FieldValuePair>> is_array() {
-		/*if (this->operator()()) {
+		if (this->operator()()) {
 			if (m_reply->type == REDIS_REPLY_ARRAY) {
-				vector<FieldValuePair> field_values;
-				for (size_t counter = 0; counter < m_reply->elements; counter++) {
-					redisReply* reply = m_reply[counter];
-					field_values.push_back(std::string(reply->str, reply->len), std:
+				std::vector<FieldValuePair> field_values;
+				for (size_t counter = 0; counter < m_reply->elements; counter += 2) {
+					redisReply* field_name = m_reply->element[counter];
+					redisReply* value = m_reply->element[counter + 1];
+					field_values.push_back(std::make_pair(std::string(field_name->str, field_name->len),
+								std::string(value->str, value->len)));
+				}
+				return field_values;
+			} else {
+				return std::nullopt;
 			}
-		}*/
+		}
 		return std::nullopt;
 	}
 

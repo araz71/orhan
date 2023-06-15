@@ -113,6 +113,10 @@ bool SqliteDatabase::remove_device(const uint32_t device_id) {
 	return true;
 }
 
+void SqliteDatabase::remove_register(const uint32_t device_id, const RegisterID register_id) {
+
+}
+
 bool SqliteDatabase::add_register(const uint32_t device_id, const RegisterID register_id,
 	const RegisterTypes type, const RegisterAccess access)
 {

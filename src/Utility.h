@@ -86,6 +86,30 @@ inline bool convert_string_to_register_type(std::string& string_type, RegisterTy
 	return true;
 }
 
+inline std::string convert_register_type_to_string(RegisterTypes type) {
+	std::string result;
+
+	if (type == RegisterTypes::TYPE_UINT8_T) {
+		result = "uint8";
+	} else if (type == RegisterTypes::TYPE_UINT16_T) {
+		result = "uint16";
+	} else if (type == RegisterTypes::TYPE_UINT32_T) {
+		result = "uint32";
+	} else if (type == RegisterTypes::TYPE_INT8_T) {
+		result = "int8";
+	} else if (type == RegisterTypes::TYPE_INT16_T) {
+		result = "int16";
+	} else if (type == RegisterTypes::TYPE_INT32_T) {
+		result = "int32";
+	} else if (type == RegisterTypes::TYPE_STRING) {
+		result = "string";
+	} else if (type == RegisterTypes::TYPE_BINARY) {
+		result = "raw";
+	}
+
+	return result;
+}
+
 inline bool convert_string_to_register_access(std::string& string_access, RegisterAccess& access) {
 	std::unordered_map<std::string, RegisterAccess> access_map;
 
@@ -98,6 +122,22 @@ inline bool convert_string_to_register_access(std::string& string_access, Regist
 
 	access = access_map[string_access];
 	return true;
+}
+
+inline std::string convert_register_access_to_string(RegisterAccess access) {
+	std::string result;
+
+	if (access == RegisterAccess::ACCESS_READ) {
+		result = "read";
+	} else if (access == RegisterAccess::ACCESS_WRITE) {
+		result = "write";
+	} else if (access == RegisterAccess::ACCESS_READ_WRITE) {
+		result = "read_write";
+	} else {
+		throw std::runtime_error("Access not found");
+	}
+
+	return result;
 }
 
 inline void split_strings(std::string base_string, std::string spliter, StringList& return_value) {

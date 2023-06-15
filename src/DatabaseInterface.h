@@ -51,6 +51,7 @@ public:
 	 * @return True if device found. otherwise false.
 	 */
 	virtual bool load_device(const uint32_t device_id, DeviceInformation& device_inf, RegisterList& registers) = 0;
+	virtual bool remove_device(const uint32_t device_id) = 0;
 
 	/**
 	 * @brief Updates value of interested register
@@ -59,10 +60,10 @@ public:
 	 * @param data Data
 	 */
 	virtual void update_register(const uint32_t device_id, const RegisterID register_id, const std::string& data) = 0;
+	virtual void remove_register(const uint32_t device_id, const RegisterID register_id) = 0;
+
 protected:
 	std::mutex lock;
-
-	virtual void execute(const std::string& command) = 0;
 };
 
 }
