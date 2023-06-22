@@ -5,6 +5,8 @@
 #include <exception>
 #include <iostream>
 
+#include <string.h>
+
 using namespace std;
 using namespace orhan;
 

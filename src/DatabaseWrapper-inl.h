@@ -34,7 +34,8 @@ bool DatabaseWrapper<T>::add_register(const uint32_t deviceID, const RegisterID 
 
 template <typename T>
 bool DatabaseWrapper<T>::remove_register(const uint32_t device_id, const RegisterID regID) {
-	return database.remove_register(device_id, regID);
+	database.remove_register(device_id, regID);
+	return true;
 }
 
 #endif

@@ -218,7 +218,7 @@ private:
 			if (args.size() != 3) {
 				response_to_client(LESS_ARGUMENTS);
 			} else {
-				int device_id = std::stoi(args[1]);
+				uint32_t device_id = std::stoi(args[1]);
 				RegisterID regID = std::stoi(args[2]);
 				Database::remove_register(device_id, regID);
 			}
