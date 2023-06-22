@@ -215,6 +215,13 @@ private:
 		"\t\tdevice_id : ID of interested device\r\n"
 		"\t\tregister_id : ID of interested register")] = [this](StringList& args)
 		{
+			if (args.size() != 3) {
+				response_to_client(LESS_ARGUMENTS);
+			} else {
+				int device_id = std::stoi(args[1]);
+				RegisterID regID = std::stoi(args[2]);
+				Database::remove_register(device_id, regID);
+			}
 		};
 
 		command_map[std::make_pair("exit", "Exits from CLI")] = [this](StringList& args) {

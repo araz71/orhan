@@ -32,4 +32,9 @@ bool DatabaseWrapper<T>::add_register(const uint32_t deviceID, const RegisterID 
 	return database.add_register(deviceID, regID, type, access);
 }
 
+template <typename T>
+bool DatabaseWrapper<T>::remove_register(const uint32_t device_id, const RegisterID regID) {
+	return database.remove_register(device_id, regID);
+}
+
 #endif

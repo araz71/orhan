@@ -25,6 +25,7 @@ public:
 	static bool add_register(const uint32_t deviceID, const RegisterID regID,
 			const RegisterTypes type, const RegisterAccess access);
 
+	static bool remove_register(const uint32_t deviceID, const RegisterID regID);
 private:
 	static T& database;
 

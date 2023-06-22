@@ -92,19 +92,17 @@ bool RedisDatabase::load_device(const uint32_t device_id, DeviceInformation& dev
 	auto device = get_fields(to_string(device_id));
 	if (device) {
 		vector<string> register_ids;
-		for (auto& field_value : device) {
+		for (auto& field_value : device.value()) {
 			auto& [field_name, value] = field_value;
 			if (field_name == "Inf") {
 				if (value.size() != sizeof(device_inf)) {
 					return false;
 				}
-				memcpy(&device_inf, reinterpret_cast<uint8_t*>(value.c_str()), sizeof(device_inf));
+				memcpy(&device_inf, reinterpret_cast<uint8_t*>(const_cast<char*>(value.c_str())), sizeof(device_inf));
 			} else if (field_name == "Registers") {
 				split_strings(value, "\n", register_ids);	
 			}
 		}
-
-		auto registers = get_fields
 	} else {
 		return false;
 	}
