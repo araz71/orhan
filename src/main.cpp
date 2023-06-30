@@ -17,6 +17,16 @@ int main() {
 
 	srand(time(NULL));
 
+	DeviceInformation inf;
+	RegisterMap reg;
+	Database::load_device(1, inf, reg);
+
+	for (auto reginf : reg) {
+		auto& [regID, reg_inf] = reginf;
+
+		cout << regID << endl;
+	}
+
 	printf("Orhan started on port %d\r\n", port);
 	while (1) {
 

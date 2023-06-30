@@ -29,7 +29,7 @@ public:
 	static SqliteDatabase& get_instance();
 
 	bool load_device(const uint32_t device_id, DeviceInformation& device_inf,
-			RegisterList &registers) override;
+			RegisterMap &registers) override;
 
 	/// See DatabaseInterface::add_device(const uint32_t);
 	bool add_device(const uint32_t device_id, const DeviceInformation& device_inf) override;

@@ -50,7 +50,7 @@ public:
 	 * @param register_map Result of registers downloaded.
 	 * @return True if device found. otherwise false.
 	 */
-	virtual bool load_device(const uint32_t device_id, DeviceInformation& device_inf, RegisterList& registers) = 0;
+	virtual bool load_device(const uint32_t device_id, DeviceInformation& device_inf, RegisterMap& registers) = 0;
 	virtual bool remove_device(const uint32_t device_id) = 0;
 
 	/**

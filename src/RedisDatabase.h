@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <iostream>
 
 namespace orhan {
 
@@ -26,7 +27,7 @@ public:
 	bool add_device(const uint32_t device_id, const DeviceInformation& device_inf) override;
 	bool add_register(const uint32_t device_id, const RegisterID register_id,
 			const RegisterTypes type, const RegisterAccess access) override;
-	bool load_device(const uint32_t device_id, DeviceInformation& device_inf, RegisterList& registers) override;
+	bool load_device(const uint32_t device_id, DeviceInformation& device_inf, RegisterMap& registers) override;
 	bool remove_device(const uint32_t device_id) override; 
 	void update_register(const uint32_t device_id, const RegisterID register_id, const std::string& data) override;
 	void remove_register(const uint32_t device_id, const RegisterID register_id) override;
@@ -48,8 +49,11 @@ protected:
 	// Retrieves field value from given key
 	std::optional<std::string> get_field(const std::string& key, const std::string& field_name);
 
+	// Retrives all keys follows given pattern
+	std::optional<FieldValuePairList> get_keys(const std::string& pattern);
+
 	// Retrieves all fields and values from given key
-	std::optional<std::vector<FieldValuePair>> get_fields(const std::string& key);
+	std::optional<FieldValuePairList> get_fields(const std::string& key);
 	void remove_key(const std::string& key);
 };
 
@@ -115,23 +119,33 @@ public:
 				return std::optional<std::string>(std::string(m_reply->str, m_reply->len));
 			}
 		}
+		return std::nullopt;
 	}
 
-	std::optional<std::vector<FieldValuePair>> is_array() {
+	std::optional<std::vector<FieldValuePair>> is_array(bool is_field_value) {
 		if (this->operator()()) {
 			if (m_reply->type == REDIS_REPLY_ARRAY) {
 				std::vector<FieldValuePair> field_values;
-				for (size_t counter = 0; counter < m_reply->elements; counter += 2) {
-					redisReply* field_name = m_reply->element[counter];
-					redisReply* value = m_reply->element[counter + 1];
-					field_values.push_back(std::make_pair(std::string(field_name->str, field_name->len),
-								std::string(value->str, value->len)));
+				if (is_field_value) {
+					for (size_t counter = 0; counter < m_reply->elements; counter += 2) {
+						redisReply* field_name = m_reply->element[counter];
+						redisReply* value = m_reply->element[counter + 1];
+						field_values.push_back(std::make_pair(std::string(field_name->str, field_name->len),
+									std::string(value->str, value->len)));
+					}
+					return field_values;
+				} else {
+					for (size_t counter = 0; counter < m_reply->elements; counter++) {
+						redisReply* value = m_reply->element[counter];
+						field_values.push_back(std::make_pair(std::string(value->str, value->len), ""));
+					}
+					return field_values;
 				}
-				return field_values;
 			} else {
 				return std::nullopt;
 			}
 		}
+
 		return std::nullopt;
 	}
 

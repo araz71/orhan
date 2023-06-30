@@ -5,7 +5,7 @@
 #include <vector>
 #include <utility>
 #include <unordered_map>
-
+#include <iostream> 
 namespace orhan
 {
 
@@ -16,6 +16,7 @@ using RegisterID = uint16_t;
 using StringList = std::vector<std::string>;
 using StringPair = std::pair<std::string, std::string>;
 using FieldValuePair = StringPair;
+using FieldValuePairList = std::vector<FieldValuePair>;
 
 typedef struct {
 	uint32_t serial_number;
@@ -65,7 +66,7 @@ typedef struct {
 	std::string register_date;
 } DeviceInformation;
 
-using RegisterList = std::unordered_map<RegisterID, Register>;
+using RegisterMap = std::unordered_map<RegisterID, Register>;
 
 inline bool convert_string_to_register_type(std::string& string_type, RegisterTypes& register_type) {
 	std::unordered_map<std::string, RegisterTypes> types_map;
@@ -120,6 +121,7 @@ inline bool convert_string_to_register_access(std::string& string_access, Regist
 	if (access_map.find(string_access) == access_map.end())
 		return false;
 
+	std::cout << "Check for " << string_access << std::endl;
 	access = access_map[string_access];
 	return true;
 }
@@ -127,6 +129,7 @@ inline bool convert_string_to_register_access(std::string& string_access, Regist
 inline std::string convert_register_access_to_string(RegisterAccess access) {
 	std::string result;
 
+	std::cout << "Check for " << access << std::endl;
 	if (access == RegisterAccess::ACCESS_READ) {
 		result = "read";
 	} else if (access == RegisterAccess::ACCESS_WRITE) {

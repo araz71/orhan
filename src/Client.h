@@ -31,7 +31,7 @@ private:
 	std::unordered_map<orhan::RegisterID, uint16_t> write_queue;
 	std::unordered_map<orhan::RegisterID, uint16_t> read_queue;
 
-	RegisterList registers;
+	RegisterMap registers;
 	DeviceInformation device_informations;
 public:
 	Client(const int socket_desctiptor, const uint32_t ip_address);

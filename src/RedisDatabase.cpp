@@ -1,4 +1,5 @@
 #include "RedisDatabase.h"
+#include "Utility.h"
 
 #include <string>
 #include <optional>
@@ -48,15 +49,20 @@ optional<string> RedisDatabase::get_field(const string& key, const std::string& 
 	return value;
 }
 
-optional<vector<RedisDatabase::FieldValuePair>> RedisDatabase::get_fields(const string& key) {
+optional<FieldValuePairList> RedisDatabase::get_fields(const string& key) {
 	RedisReply reply = redisCommand(redis_context, "hgetall %b", key.c_str(), key.length());
 
-	auto value = reply.is_array();
+	auto value = reply.is_array(true);
 	return value;
 }
 
+optional<FieldValuePairList> RedisDatabase::get_keys(const string& pattern) {
+	RedisReply reply = redisCommand(redis_context, "KEYS %b", pattern.c_str(), pattern.length());
+	return reply.is_array(false);
+}
+
 void RedisDatabase::remove_key(const string& key) {
-	redisCommand(redis_context, "hdel %b", key.c_str(), key.length());
+	RedisReply reply = redisCommand(redis_context, "del %b", key.c_str(), key.length());
 }
 
 bool RedisDatabase::add_device(const uint32_t device_id, const DeviceInformation& device_inf) {
@@ -66,6 +72,7 @@ bool RedisDatabase::add_device(const uint32_t device_id, const DeviceInformation
 
 bool RedisDatabase::remove_device(const uint32_t device_id) {
 	remove_key(to_string(device_id));
+	// Also remove all registers
 	return true;
 }
 
@@ -89,11 +96,11 @@ void RedisDatabase::remove_register(const uint32_t device_id, const RegisterID r
 }
 
 bool RedisDatabase::load_device(const uint32_t device_id, DeviceInformation& device_inf,
-		RegisterList& registers)
+		RegisterMap& registers)
 {
-	auto device = get_fields(to_string(device_id));
+	auto deviceID = to_string(device_id);
+	auto device = get_fields(deviceID);
 	if (device) {
-		vector<string> register_ids;
 		for (auto& field_value : device.value()) {
 			auto& [field_name, value] = field_value;
 			if (field_name == "Inf") {
@@ -101,8 +108,36 @@ bool RedisDatabase::load_device(const uint32_t device_id, DeviceInformation& dev
 					return false;
 				}
 				memcpy(&device_inf, reinterpret_cast<uint8_t*>(const_cast<char*>(value.c_str())), sizeof(device_inf));
-			} else if (field_name == "Registers") {
-				split_strings(value, "\n", register_ids);	
+			}
+		}
+
+		deviceID += "_*";
+		auto device_reg_ids = get_keys(deviceID);
+		if (device_reg_ids) {
+			for (auto device_reg_id : device_reg_ids.value()) {
+				// Get register whole identifiers
+				auto regid = device_reg_id.first;
+				regid = regid.substr(regid.find_first_of("_") + 1, regid.length());
+				RegisterID regID = static_cast<RegisterID>(std::stoi(regid));
+				auto reg_informations = get_fields(regid);
+				if (reg_informations) {
+					RegisterTypes reg_type;
+					RegisterAccess reg_access;
+					string reg_value;
+
+					for (auto reg_inf : reg_informations.value()) {
+						auto& [field_name, value] = reg_inf;
+						if (field_name == "type") {
+							convert_string_to_register_type(value, reg_type);
+						} else if (field_name == "access") {
+							convert_string_to_register_access(value, reg_access);
+						} else if (field_name == "value") {
+							reg_value = value;
+						}
+					}
+
+					registers[regID] = {regID, reg_type, reg_access, reg_value};	
+				}
 			}
 		}
 	} else {

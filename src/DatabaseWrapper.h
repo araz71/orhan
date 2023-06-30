@@ -4,6 +4,7 @@
 #include "Utility.h"
 
 #include <string>
+#include <iostream>
 
 namespace orhan
 {
@@ -15,9 +16,10 @@ public:
 	DatabaseWrapper& operator=(const DatabaseWrapper&) = delete;
 
 	static bool add_device(const uint32_t deviceID, const DeviceInformation& device_inf);
+	static bool remove_device(const uint32_t deviceID); 
 
 	static bool load_device(const uint32_t deviceID, DeviceInformation& device_inf,
-			RegisterList& registers);
+			RegisterMap& registers);
 
 	static void update_register(const uint32_t deviceID, const RegisterID regID,
 			const std::string& value);

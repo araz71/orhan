@@ -137,6 +137,15 @@ private:
 	/// Map to keep commands title, description and function callback
 	std::map<StringPair, CommandCallback> command_map;
 
+	bool argument_checker(StringList& args, size_t number_of_valid_args) {
+		if (args.size() != number_of_valid_args) {
+			response_to_client(LESS_ARGUMENTS);
+			return false;
+		}
+
+		return true;
+	}
+
 	CLI() {
 		cli_socket_descriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (cli_socket_descriptor == -1)
@@ -158,6 +167,9 @@ private:
 				"\t\tdevice_id : Unique possitive integer\r\n"
 				"\t\ttype : Device type")] = [this](StringList& args)
 		{
+			if (!argument_checker(args, 3))
+				return;
+
 			if (args.size() != 3)
 				response_to_client(LESS_ARGUMENTS);
 			else {
@@ -178,8 +190,36 @@ private:
 			}
 		};
 
-		command_map[std::make_pair("remove-device", "Removes device from database")] = [](StringList& args) {
-			std::cout << "you wanna remove" << std::endl;
+		command_map[std::make_pair("remove-device", "Removes device from database")] = [this](StringList& args) {
+			if (argument_checker(args, 2)) {
+				if (Database::remove_device(std::stoi(args[1]))) {
+					response_to_client("Device removed\r\n");
+				} else {
+					response_to_client("Removing device failed.\r\n");
+				}
+			}
+		};
+
+		command_map[std::make_pair("view-device", "Take a look to the device")] = [this](StringList& args) {
+			if (argument_checker(args, 2)) {
+				DeviceInformation devInf;
+				RegisterMap regList;
+
+				if (Database::load_device(std::stoi(args[1]), devInf, regList)) {
+					std::string response;
+					for (auto& reg : regList) {
+						auto& [regID, regInf] = reg;
+						response += "Register";
+						response += std::to_string(regID);
+						response += " : ";
+						response += convert_register_type_to_string(regInf.type);
+						response += " ";
+						response += convert_register_access_to_string(regInf.access);
+						response += " \n";
+						response_to_client(response.c_str());
+					}
+				}
+			}
 		};
 
 		command_map[std::make_pair("add-register", "Adds new register to device.\r\n"
@@ -187,9 +227,7 @@ private:
 				"\t\tregister_id : ID of new register\r\n"
 				"\t\tregister_type : Type of register. uint8/16/32 or int8/16/32, string and raw is acceptable")] = [this](StringList& args)
 		{
-			if (args.size() != 5)
-				response_to_client(LESS_ARGUMENTS);
-			else {
+			if (argument_checker(args, 5)) {
 				uint32_t device_id = std::stoi(args[1]);
 				RegisterID regID = static_cast<RegisterID>(std::stoi(args[2]));
 				RegisterTypes type;
@@ -215,9 +253,7 @@ private:
 		"\t\tdevice_id : ID of interested device\r\n"
 		"\t\tregister_id : ID of interested register")] = [this](StringList& args)
 		{
-			if (args.size() != 3) {
-				response_to_client(LESS_ARGUMENTS);
-			} else {
+			if (argument_checker(args, 3)) {
 				uint32_t device_id = std::stoi(args[1]);
 				RegisterID regID = std::stoi(args[2]);
 				Database::remove_register(device_id, regID);

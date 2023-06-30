@@ -15,7 +15,9 @@ bool DatabaseWrapper<T>::add_device(const uint32_t deviceID, const DeviceInforma
 
 template <typename T>
 bool DatabaseWrapper<T>::load_device(const uint32_t deviceID, DeviceInformation& device_inf,
-		RegisterList& registers) {
+		RegisterMap& registers)
+{
+	std::cout << "Load " << deviceID << std::endl;
 	return database.load_device(deviceID, device_inf, registers);
 }
 
@@ -36,6 +38,11 @@ template <typename T>
 bool DatabaseWrapper<T>::remove_register(const uint32_t device_id, const RegisterID regID) {
 	database.remove_register(device_id, regID);
 	return true;
+}
+
+template <typename T>
+bool DatabaseWrapper<T>::remove_device(const uint32_t device_id) {
+	return database.remove_device(device_id);
 }
 
 #endif

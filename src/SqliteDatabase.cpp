@@ -36,7 +36,7 @@ SqliteDatabase::SqliteDatabase() {
 	execute(DEVICE_TABLE_CREATOR);
 }
 
-bool SqliteDatabase::load_device(const uint32_t device_id, DeviceInformation& device_info, RegisterList& registers) {
+bool SqliteDatabase::load_device(const uint32_t device_id, DeviceInformation& device_info, RegisterMap& registers) {
 	lock.lock();
 
 	// Retrive data
