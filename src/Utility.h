@@ -121,7 +121,6 @@ inline bool convert_string_to_register_access(std::string& string_access, Regist
 	if (access_map.find(string_access) == access_map.end())
 		return false;
 
-	std::cout << "Check for " << string_access << std::endl;
 	access = access_map[string_access];
 	return true;
 }
@@ -129,7 +128,6 @@ inline bool convert_string_to_register_access(std::string& string_access, Regist
 inline std::string convert_register_access_to_string(RegisterAccess access) {
 	std::string result;
 
-	std::cout << "Check for " << access << std::endl;
 	if (access == RegisterAccess::ACCESS_READ) {
 		result = "read";
 	} else if (access == RegisterAccess::ACCESS_WRITE) {

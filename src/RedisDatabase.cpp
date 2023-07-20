@@ -81,7 +81,8 @@ bool RedisDatabase::add_register(const uint32_t device_id, const RegisterID regi
 {
 	RedisReply reply = redisCommand(redis_context, "hset %d_%d type %s access %s",
 			device_id, register_id,
-			convert_register_type_to_string(type), convert_register_access_to_string(access));
+			convert_register_type_to_string(type).c_str(),
+			convert_register_access_to_string(access).c_str());
 
 	if (reply.is_integer()) {
 		return true;
@@ -119,7 +120,7 @@ bool RedisDatabase::load_device(const uint32_t device_id, DeviceInformation& dev
 				auto regid = device_reg_id.first;
 				regid = regid.substr(regid.find_first_of("_") + 1, regid.length());
 				RegisterID regID = static_cast<RegisterID>(std::stoi(regid));
-				auto reg_informations = get_fields(regid);
+				auto reg_informations = get_fields(device_reg_id.first);
 				if (reg_informations) {
 					RegisterTypes reg_type;
 					RegisterAccess reg_access;

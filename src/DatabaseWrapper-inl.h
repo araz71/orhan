@@ -17,7 +17,6 @@ template <typename T>
 bool DatabaseWrapper<T>::load_device(const uint32_t deviceID, DeviceInformation& device_inf,
 		RegisterMap& registers)
 {
-	std::cout << "Load " << deviceID << std::endl;
 	return database.load_device(deviceID, device_inf, registers);
 }
 
