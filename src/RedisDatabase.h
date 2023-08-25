@@ -150,7 +150,14 @@ public:
 	}
 
 	~RedisReply() {
+		std::cout << "I called" << std::endl;
 		if (m_reply != NULL) {
+			if (m_reply->type == REDIS_REPLY_ARRAY) {
+				for (size_t i = 0; i < m_reply->elements; i++) {
+					freeReplyObject(m_reply->element[i]);
+				}
+			}
+
 			freeReplyObject(m_reply);
 		}
 	}

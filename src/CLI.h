@@ -133,6 +133,7 @@ private:
 			"command > "
 	};
 	const char *LESS_ARGUMENTS = "Number of entered aruments is invalid\r\n";
+	const char *DEVICE_NOT_FOUND = "Device not found\r\n";
 
 	int cli_socket_descriptor;
 	int client_socket_descriptor;
@@ -215,6 +216,7 @@ private:
 
 				if (Database::load_device(std::stoi(args[1]), devInf, regList)) {
 					std::string response;
+					std::cout << "Number of registers loaded: " << regList.size() << std::endl;
 					for (auto& reg : regList) {
 						auto& [regID, regInf] = reg;
 						response += "Register";
@@ -226,6 +228,8 @@ private:
 						response += " \n";
 						response_to_client(response.c_str());
 					}
+				} else {
+					response_to_client(DEVICE_NOT_FOUND);
 				}
 			}
 		};
@@ -233,7 +237,8 @@ private:
 		command_map[std::make_pair("add-reg", "Adds new register to device.\r\n"
 				"\t\tdevice_id : ID of interested device\r\n"
 				"\t\tregister_id : ID of new register\r\n"
-				"\t\tregister_type : Type of register. uint8/16/32 or int8/16/32, string and raw is acceptable")] = [this](StringList& args)
+				"\t\tregister_type : Type of register. uint8/16/32 or int8/16/32, string and raw is acceptable\r\n"
+				"\t\taccess_level : read/write/read_write")] = [this](StringList& args)
 		{
 			if (argument_checker(args, 5)) {
 				uint32_t device_id = std::stoi(args[1]);
@@ -281,7 +286,7 @@ private:
 				DeviceInformation dev_inf;
 				RegisterMap registers;
 				if (Database::load_device(device_id, dev_inf, registers)) {
-					auto interested_reg = registers.find(std::stoi(args(2)));
+					auto interested_reg = registers.find(std::stoi(args[2]));
 					if (interested_reg != registers.end()) {
 						
 					} else {
