@@ -25,6 +25,7 @@ namespace orhan {
 class CLI {
 public:
 	using CommandCallback = std::function<void([[maybe_unused]] StringList&)>;
+	using MenuItem = std::pair<std::string, std::string>;
 
 	CLI(const CLI&) = delete;
 	CLI& operator=(const CLI&) = delete;
@@ -40,12 +41,13 @@ public:
 	bool collect(const char* data, uint16_t size) {
 		command += std::string(data, size);
 		if (command.find("\n") != std::string::npos) {
-			command.erase(std::remove(command.begin(), command.end(), '\r'), command.end());
-			command.erase(std::remove(command.begin(), command.end(), '\n'), command.end());
+			command.erase(std::remove(command.begin(), command.end(), '\r'),
+					command.end());
+			command.erase(std::remove(command.begin(), command.end(), '\n'),
+					command.end());
 
 			return true;
 		}
-
 		return false;
 	}
 
@@ -160,6 +162,28 @@ private:
 			throw std::runtime_error("CLI : Can not create socket");
 		}
 
+		const MenuItem remove_device("remove-device", "Removes device from database");
+		const MenuItem add_devie("add-device", "Adds new device to database.\r\n"
+				"\t\tdevice_id : Unique possitive integer\r\n"
+				"\t\ttype : Device type");
+		const MenuItem view_device("view-device", "Take a look to the device");
+		const MenuItem add_reg("add-reg", "Adds new register to device.\r\n"
+				"\t\tdevice_id : ID of interested device\r\n"
+				"\t\tregister_id : ID of new register\r\n"
+				"\t\tregister_type : Type of register. uint8/16/32 or int8/16/32, string and raw is acceptable\r\n"
+				"\t\taccess_level : read/write/read_write");
+		const MenuItem remove_reg("remove-reg", "Removes selected register from interested device\r\n"
+				"\t\tdevice_id : ID of interested device\r\n"
+				"\t\tregister_id : ID of interested register");
+		const MenuItem set_reg("set-reg", "Sets register value\r\n"
+				"\t\tdevice_id : ID of interested device\r\n"
+				"\t\treg_id : ID of interester device\r\n"
+				"\t\tdata : Data. Depends on register type it will convert to valid data.\r\n"
+				"\t\t\t\tFor RAW data insert HEX data seperated by space like AB CD");
+		const MenuItem exit_cli("exit", "Exits from CLI");
+		const MenuItem help("help", "Prints help menu");
+		
+
 		struct sockaddr_in addr;
 		memset(&addr, 0, sizeof(addr));
 		addr.sin_family = AF_INET;
@@ -174,9 +198,7 @@ private:
 			throw std::runtime_error("CLI : Can not listen");
 		}
 
-		command_map[std::make_pair("add-device", "Adds new device to database.\r\n"
-				"\t\tdevice_id : Unique possitive integer\r\n"
-				"\t\ttype : Device type")] = [this](StringList& args)
+		command_map[add_devie] = [this](StringList& args)
 		{
 			if (!argument_checker(args, 3)) {
 				return;
@@ -199,7 +221,7 @@ private:
 			}
 		};
 
-		command_map[std::make_pair("remove-device", "Removes device from database")] = [this](StringList& args) {
+		command_map[remove_device] = [this](StringList& args) {
 			if (argument_checker(args, 2)) {
 				if (Database::remove_device(std::stoi(args[1]))) {
 					response_to_client("Device removed\r\n");
@@ -209,7 +231,7 @@ private:
 			}
 		};
 
-		command_map[std::make_pair("view-device", "Take a look to the device")] = [this](StringList& args) {
+		command_map[view_device] = [this](StringList& args) {
 			if (argument_checker(args, 2)) {
 				DeviceInformation devInf;
 				RegisterMap regList;
@@ -234,11 +256,7 @@ private:
 			}
 		};
 
-		command_map[std::make_pair("add-reg", "Adds new register to device.\r\n"
-				"\t\tdevice_id : ID of interested device\r\n"
-				"\t\tregister_id : ID of new register\r\n"
-				"\t\tregister_type : Type of register. uint8/16/32 or int8/16/32, string and raw is acceptable\r\n"
-				"\t\taccess_level : read/write/read_write")] = [this](StringList& args)
+		command_map[add_reg] = [this](StringList& args)
 		{
 			if (argument_checker(args, 5)) {
 				uint32_t device_id = std::stoi(args[1]);
@@ -264,9 +282,7 @@ private:
 			}
 		};
 
-		command_map[std::make_pair("remove-reg", "Removes selected register from interested device\r\n"
-		"\t\tdevice_id : ID of interested device\r\n"
-		"\t\tregister_id : ID of interested register")] = [this](StringList& args)
+		command_map[remove_reg] = [this](StringList& args)
 		{
 			if (argument_checker(args, 3)) {
 				uint32_t device_id = std::stoi(args[1]);
@@ -275,11 +291,7 @@ private:
 			}
 		};
 
-		command_map[std::make_pair("set-reg", "Sets register value\r\n"
-				"\t\tdevice_id : ID of interested device\r\n"
-				"\t\treg_id : ID of interester device\r\n"
-				"\t\tdata : Data. Depends on register type it will convert to valid data.\r\n"
-				"\t\t\t\tFor RAW data insert HEX data seperated by space like AB CD")] = [this](StringList& args)
+		command_map[set_reg] = [this](StringList& args)
 		{
 			if (argument_checker(args, 3)) {
 				uint32_t device_id = std::stoi(args[1]);
@@ -298,12 +310,12 @@ private:
 			}
 		};
 
-		command_map[std::make_pair("exit", "Exits from CLI")] = [this](StringList& args) {
+		command_map[exit_cli] = [this](StringList& args) {
 			response_to_client("ByBy\r\n");
 			close(client_socket_descriptor);
 		};
 
-		command_map[std::make_pair("help", "Prints all avaliable commands")] = [this]( StringList& args) {
+		command_map[help] = [this]( StringList& args) {
 			for (auto& command : command_map) {
 				auto [title, description] = command.first;
 

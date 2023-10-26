@@ -67,7 +67,6 @@ void Server::reader() {
 				string response;
 				if (!Packet::analys<Client>(buffer, size, response, client.second)) { 
 					cout << "Can not atach packet" << endl;
-
 				} else if (response.size() > 0) {
 					const size_t write_len = send(socket_descriptor, response.c_str(),
 							response.length(), MSG_DONTWAIT);
