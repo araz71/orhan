@@ -1,19 +1,40 @@
 #!/usr/bin/python3
 
 import sys
+import os
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.shortcuts import CompleteStyle, prompt
 from db import Database
 from prettytable import PrettyTable
-
+from Register import RegisterType
 
 db = Database()
 
 def missed_argument(arg_name: str):
     print(f"Missed argument: \"{arg_name}\" should be enter.\n")
     return False
+
+def dict_users():
+    users: dict = {}
+    user_list = db.list_users()
+    for user in user_list:
+        users[user.name + "-" + user.label] = None
+    return users
+
+def dict_devices():
+    devices: dict = {}
+    device_list = db.list_devices()
+    for dev in device_list:
+        devices[dev.serial + "-" + dev.label] = None
+    return devices
+
+def dict_registers(sn: str):
+    registers: dict = {}
+    register_list = db.list_registers(sn)
+    for reg in register_list:
+        registers[reg.id + "-" + reg.label] = None
 
 commands = {
             "add":
@@ -48,6 +69,10 @@ commands = {
                 "add": {
                     "--serial": None,
                     "--regID": None,
+                    "--label": None,
+                    "--type": {
+                        member_name.name: None for member_name in RegisterType
+                    }
                 },
                 "remove": {
                     "--serial": None,
@@ -63,7 +88,8 @@ commands = {
                     "--regID": None
                 }
             },
-            "exit": None
+            "exit": None,
+            "clear": None
 }
 
 keywords = commands.keys()
@@ -79,12 +105,24 @@ class MyCustomCompleter(Completer):
         if len(inputs) <= 1:
             completer_result = keywords
         else:
-            last_dict: dict = commands
-            for key in keys:
-                if key in last_dict.keys() and last_dict[key] != None:
-                    last_dict = last_dict[key]
-            
-            for key in last_dict.keys():
+            current_dict: dict = commands
+            last_input: str = ""
+
+            last_input = keys[-1]
+            if len(last_input) == 0:
+                last_input = keys[-2]
+
+            if last_input == "--serial":
+                current_dict = dict_devices()
+            elif last_input == "--name":
+                current_dict = dict_users()
+            else:
+                for i in range(0, len(keys)):
+                    key = keys[i]
+                    if key in current_dict.keys() and current_dict[key] != None:
+                        current_dict = current_dict[key]
+        
+            for key in current_dict.keys():
                 completer_result.append(key)
 
         for r in completer_result:
@@ -110,11 +148,16 @@ def extract_args(args: str) -> dict:
 
     return result
 
+def prepare_args(args: dict):
+    for key, value in args.items():
+        if "-" in value:
+            args[key] = value.split("-")[0]
+
 def perror(err: str):
-    print(f"Err: {err}")
+    print(f"\033[31mErr:\033[0m {err}")
 
 def psucc(msg: str):
-    print(f"Successfull: {msg}")
+    print(f"\033[32Successfull:\033[0m {msg}\n")
 
 def add_device(args):
     forced_args = commands["add"]["device"]
@@ -154,6 +197,7 @@ def assign_command(params):
     if "serial" not in args.keys() or "name" not in args.keys():
         raise Exception("User name or device serial number should be enter.")
     
+    prepare_args(args)
     db.assign_device(args["serial"], args["name"])
 
 def remove_command(params):
@@ -166,6 +210,7 @@ def remove_command(params):
         perror(f"Removing \"{remove_what}\" is not defined.")
 
     args = extract_args(params[1:])
+    prepare_args(args)
 
     what: str = ""
     if remove_what == "user":
@@ -179,9 +224,6 @@ def remove_command(params):
 
     remove_callbacks[remove_what](what)
     psucc(f"{remove_what} \"{what}\" removed.")
-
-def identify_command(params):
-    pass
 
 def exit_command(params):
     exit(0)
@@ -203,11 +245,17 @@ def list_users(users):
 
     return table
 
-def list_register(registers):
-    table = PrettyTable(["Index", "ID", "Value"])
+def list_register(params):
+    args = extract_args(params)
+    prepare_args(args)
+    if "serial" not in args.keys():
+        raise Exception("To list registers device serial should enter.")
+
+    registers = db.list_registers(args["serial"])
+    table = PrettyTable(["ID", "Label", "Type", "Value", "Last modification"])
     index: int = 1
     for reg in registers:
-        table.add_row([index, reg[0], reg[2]])
+        table.add_row([reg.id, reg.label, reg.type, reg.value, reg.last_modification])
         index = index + 1
 
     return table
@@ -227,36 +275,65 @@ def list_command(params):
     if len(params) >=2 :
         pattern = params[1]
 
-    elems = list_callbacks[list_what][0](pattern)
-    table = list_callbacks[list_what][1](elems)
+    if list_what == "registers":
+        table = list_register(params[1:])
+    else:
+        elems = list_callbacks[list_what][0](pattern)
+        table = list_callbacks[list_what][1](elems)
+
+    print(f"List of {list_what}")
+    table.align = "l"
     print(table)
+    print()
+
+def register_add_command(args):
+    if "type" not in args:
+        raise Exception("Please select type of register.")
+    
+    label: str = "Not assigned"
+    if "label" in args:
+        label = args["label"]
+
+    db.add_register(args["serial"], args["regID"], args["type"], label)
+
+def register_remove_command(args):
+    db.remove_register(args["serial"], args["regID"])
+
+def register_get_command(args):
+    pass
+
+def register_set_command(args):
+    pass
 
 def register_command(params):
     function: str = params[0]
     callbacks: dict = {
-        "add": db.add_register,
-        "remove": db.remove_register,
-        "get": db.get_register,
-        "set": db.set_register
+        "add": register_add_command,
+        "remove": register_remove_command,
+        "get": register_get_command,
+        "set": register_set_command
     }
 
     if function not in callbacks.keys():
         raise Exception(f"Register function \"{function}\" is invalid.")
     
     args = extract_args(params[1:])
+    prepare_args(args)
     if "serial" not in args.keys() and "regID" not in args.keys():
         raise Exception("serial number of device and register number should be enter.")
 
-    callbacks[function](args["serial"], args["regID"])
+    regID: int = args["regID"]
+    callbacks[function](args)
+    psucc(f"{function} done on register \"{regID}\".")
 
 callbacks: dict = {
     "add": add_command,
     "assign": assign_command,
     "remove": remove_command,
-    "identify": identify_command,
     "list": list_command,
     "exit": exit_command,
-    "register": register_command
+    "register": register_command,
+    "clear": lambda x: os.system("clear")
 }
 
 def parse_inputs(inputs: str):
@@ -274,7 +351,7 @@ def parse_inputs(inputs: str):
     try:
         callbacks[command](parts[1:])
     except Exception as e:
-        print(f"Err: {e}")
+        perror(e)
 
 def main():
     session = PromptSession()
@@ -291,11 +368,12 @@ def main():
             parse_inputs(text)
 
 if __name__ == "__main__":
-    print("Orhan CLI v0.1. Press tab or enter a key to show completer.\n")
+    print("Orhan CLI v0.1. Press tab or enter a key to show completer.")
     if len(sys.argv) > 1:
         args: str = sys.argv[1]
         for i in range(2, len(sys.argv)):
             args = args + " " + sys.argv[i]
         parse_inputs(args)
     else:
+        print()
         main()

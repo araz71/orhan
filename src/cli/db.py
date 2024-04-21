@@ -3,6 +3,8 @@ import datetime
 
 from User import User
 from Device import Device
+from Register import Register
+from Register import RegisterType
 
 class Database:
     def exec(self, command):
@@ -34,24 +36,23 @@ class Database:
             user_table: str = """CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY,
 name Text, last_name Text, phone Text, data_modified TEXT)"""
             result = self.exec(user_table)
-            if not result:
+            if self.mycursor.rowcount == 0:
                 raise Exception("Failed to create user table.")
         
         result = self.exec("SHOW TABLES LIKE 'devices'")
         if not len(result):
             device_table: str = """CREATE TABLE devices(id INT AUTO_INCREMENT PRIMARY KEY,
-Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT)"""
+Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT, last_connection Text)"""
             result = self.exec(device_table)
-            if not len(result):
+            if self.mycursor.rowcount == 0:
                 raise Exception("Failed to create device table.")
         
         result = self.exec("SHOW TABLES LIKE 'registers'")
-        if not len(result):
-            request  = "CREATE TABLE registers(id INT, sn Text, value Text)"
+        if self.mycursor.rowcount == 0:
+            request  = "CREATE TABLE registers(id INT, sn Text, type Text, value Text, label Text, last_updated Text, History Text)"
             result = self.exec(request)
             if not len(result):
                 raise Exception("Failed to create registers table.")
-
 
     def add_user(self, name: str, last_name: str, phone: str):
         request: str = f"SELECT * from users where name=\"{name}\""
@@ -138,24 +139,22 @@ Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT)"""
         
         request = f"SELECT * FROM users WHERE name=\"{user_name}\""
         result = self.exec(request)
-        if not len(result):
+        if self.mycursor.rowcount == 0:
             raise Exception(f"User with name \"{user_name}\" not found.")
         
-        request = f"UPDATE devices SET owner=\"{user_name}\" WHERE serial=\"{device_sn}\""
+        request = f"UPDATE devices SET owner=\"{user_name}\",date_assigned=\"{datetime.datetime.now()}\" WHERE serial=\"{device_sn}\""
         result = self.exec(request)
-        if not len(result):
-            raise Exception(f"Assigning \"{device_sn}\" to user \"{user_name}\" failed.")
     
-    def add_register(self, sn: str, regID: int):
+    def add_register(self, sn: str, regID: int, reg_type: RegisterType, label: str):
         request: str = f"SELECT * from registers where id=\"{regID}\" and sn=\"{sn}\""
         result = self.exec(request)
         if len(result):
             raise Exception(f"Register \"{regID}\" on device \"{sn}\" has been added before.")
 
-        request = f"INSERT INTO registers(id,sn,value) VALUES(\"{regID}\",\"{sn}\", \"00\")"
+        request = f"INSERT INTO registers(id,sn,type,value,label) VALUES(\"{regID}\",\"{sn}\", \"{reg_type}\", \"00\", \"{label}\")"
         result = self.exec(request)
-        if not len(result):
-            raise Exception(f"Can not insert register\"{regID}\" on device \"{sn}\"")
+        if not self.mycursor.rowcount > 0:
+            raise Exception(f"Can not insert register \"{regID}\" on device \"{sn}\"")
 
     def remove_register(self, sn: str, regID: int):
         request: str = f"SELECT * from registers where id=\"{regID}\" and sn=\"{sn}\""
@@ -168,11 +167,18 @@ Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT)"""
         if not len(result):
             raise Exception(f"Can not remove register \"{regID}\" on device \"{sn}\".")
 
+    def get_register(self, sn: str):
+        pass
+
+    def set_register(self, sn: str):
+        pass
+
     def list_registers(self, sn: str):
         registers: list = []
         request: str = f"SELECT * FROM registers where sn=\"{sn}\""
         result = self.exec(request)
         for reg in result:
-            registers.append(reg[0])
+            retrieved_reg: Register = Register(reg[1], reg[0], reg[2], reg[3], reg[4], reg[5])
+            registers.append(retrieved_reg)
 
         return registers

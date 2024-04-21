@@ -1,4 +1,4 @@
 bin/
 *.swp
 *.swo
-src/__pycache__
+src/cli/__pycache__
