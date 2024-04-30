@@ -170,8 +170,9 @@ Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT, las
     def get_register(self, sn: str):
         pass
 
-    def set_register(self, sn: str):
-        pass
+    def set_register(self, sn: str, regID: int, value: str):
+        request = f"UPDATE registers SET value=\"{value}\" WHERE sn=\"{sn}\" AND id=\"{regID}\""
+        self.exec(request)
 
     def list_registers(self, sn: str):
         registers: list = []
