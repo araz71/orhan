@@ -2,4 +2,4 @@ bin/
 *.swp
 *.swo
 src/cli/__pycache__
-src/mqtt_client/target
+src/mqtt_client/rust/target
