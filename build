@@ -1,0 +1,4 @@
+cd src/mqtt_client
+cargo build
+cd ../
+
