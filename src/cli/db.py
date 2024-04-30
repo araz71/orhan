@@ -167,11 +167,17 @@ Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT, las
         if not len(result):
             raise Exception(f"Can not remove register \"{regID}\" on device \"{sn}\".")
 
-    def get_register(self, sn: str):
-        pass
+    def get_register(self, sn: str, regID: int):
+        request = f"SELECT * FROM registers where sn=\"{sn}\" AND id=\"{regID}\""
+        result = self.exec(request);
+        if len(result):
+            reg = result[0]
+            reg: Register = Register(sn, regID, reg[2], reg[3], reg[4], reg[5])
+            return reg
+        return None
 
     def set_register(self, sn: str, regID: int, value: str):
-        request = f"UPDATE registers SET value=\"{value}\" WHERE sn=\"{sn}\" AND id=\"{regID}\""
+        request = f"UPDATE registers SET value=\"{value}\",last_updated=\"{datetime.datetime.now()}\" WHERE sn=\"{sn}\" AND id=\"{regID}\""
         self.exec(request)
 
     def list_registers(self, sn: str):

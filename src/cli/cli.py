@@ -13,7 +13,7 @@ from Register import RegisterType
 db = Database()
 
 def missed_argument(arg_name: str):
-    print(f"Missed argument: \"{arg_name}\" should be enter.\n")
+    perror(f"Missed argument: \"{arg_name}\" should be enter.\n")
     return False
 
 def dict_users():
@@ -139,7 +139,7 @@ class MyCustomCompleter(Completer):
 def extract_args(args: str) -> dict:
     result: dict = {}
     if len(args)%2 != 0:
-        print("Wrong number of arguments.")
+        perror("Wrong number of arguments.")
         return {}
 
     for i in range(0, len(args)):
@@ -153,11 +153,16 @@ def prepare_args(args: dict):
         if "-" in value:
             args[key] = value.split("-")[0]
 
-def perror(err: str):
-    print(f"\033[31mErr:\033[0m {err}")
+def perror(err: str, new_line: bool = True):
+    print(f"\033[31mError:\033[0m {err}")
+    if new_line:
+        print()
 
-def psucc(msg: str):
-    print(f"\033[32Successfull:\033[0m {msg}\n")
+def psucc(msg: str, new_line: bool = True):
+    print(f"\033[32mSuccess:\033[0m {msg}")
+    if new_line:
+        print()
+
 
 def add_device(args):
     forced_args = commands["add"]["device"]
@@ -190,7 +195,7 @@ def add_command(params):
 
     args = extract_args(params[1:])
     add_callback[add_what](args)
-    print(f"Successfull: {add_what} added successfully.")
+    psucc(f"{add_what} added.")
 
 def assign_command(params):
     args = extract_args(params)
@@ -340,12 +345,12 @@ def parse_inputs(inputs: str):
     parts: str = inputs.split(" ")
     
     if len(parts) < 1:
-        print("Please enter command...")
+        perror("Please enter command...")
         return
 
     command = parts[0]
     if command not in callbacks.keys():
-        print(f"Command ({command}) not found!")
+        perror(f"Command ({command}) not found!")
         return
     
     try:
