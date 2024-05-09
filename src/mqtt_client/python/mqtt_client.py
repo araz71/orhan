@@ -1,7 +1,8 @@
 #!/usr/bin/python3
+import time
+import sys
 
 import paho.mqtt.client as mqtt
-import sys
 
 sys.path.insert(1, "../../cli/")
 from db import Database
@@ -64,6 +65,7 @@ client.subscribe(topic)
 client.loop_start()
 
 while True:
+    time.sleep(1)
     pass
 
 client.loop_stop()

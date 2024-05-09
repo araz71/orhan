@@ -118,7 +118,7 @@ Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT, las
         request: str = "SELECT * FROM devices"
         result = self.exec(request)
         for res in result:
-            if pattern in str(res[1]):
+            if pattern in str(res[1]) or pattern == str(res[1]):
                 owner_name: str = "FREE"
                 if res[3]:
                     request: str = f"SELECT last_name from users where name=\"{res[3]}\""
