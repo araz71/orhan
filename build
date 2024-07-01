@@ -1,4 +1,20 @@
-cd src/mqtt_client
-cargo build
-cd ../
 
+if [ "$1" = "build" ]; then
+    cd src
+
+    cd mqtt_client
+    ls
+    ./build.sh
+    cd ../
+
+    cd http_server
+    ./build.sh
+    cd ../
+elif [ "$1" = "run" ]; then
+    cd http_server/python
+    python3 http_server.py
+else
+    echo "Unknown command entered. Valid commands:"
+    echo "      build : To build all services."
+    echo "      run   : To run all services except cli."
+fi

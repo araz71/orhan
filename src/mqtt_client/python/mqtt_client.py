@@ -16,11 +16,14 @@ port = 1883
 topic = "registers"
 client_id = "RegisterReader"
 
+
 def mypsucc(msg: str):
     psucc(msg, False)
 
+
 def myperror(msg: str):
     perror(msg, False)
+
 
 def on_connect(client, user_data, flag, rc):
     if rc == 0:
@@ -28,6 +31,7 @@ def on_connect(client, user_data, flag, rc):
     else:
         myperror("Can not connect to broker.")
         exit(-1);
+
 
 def on_message(client, userdata, msg):
     if msg.topic == "registers":
@@ -52,6 +56,7 @@ def on_message(client, userdata, msg):
                         myperror(f"Reg[{regID}] on Device[{sn}] NOT EXISTS.")
         else:
             myperror("Unknown message")
+
 
 print("Starting Mqtt Client v0.1")
 client = mqtt.Client(client_id=client_id)

@@ -33,7 +33,7 @@ class Database:
         # Create the table if it does not exist
         result = self.exec("SHOW TABLES LIKE 'users'")
         if not len(result):
-            user_table: str = """CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY,
+            user_table: str = """CREATE TABLE users(uid INT AUTO_INCREMENT PRIMARY KEY,
 name Text, last_name Text, phone Text, data_modified TEXT)"""
             result = self.exec(user_table)
             if self.mycursor.rowcount == 0:
@@ -41,7 +41,7 @@ name Text, last_name Text, phone Text, data_modified TEXT)"""
         
         result = self.exec("SHOW TABLES LIKE 'devices'")
         if not len(result):
-            device_table: str = """CREATE TABLE devices(id INT AUTO_INCREMENT PRIMARY KEY,
+            device_table: str = """CREATE TABLE devices(did INT AUTO_INCREMENT PRIMARY KEY,
 Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT, last_connection Text)"""
             result = self.exec(device_table)
             if self.mycursor.rowcount == 0:
@@ -49,7 +49,7 @@ Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT, las
         
         result = self.exec("SHOW TABLES LIKE 'registers'")
         if self.mycursor.rowcount == 0:
-            request  = "CREATE TABLE registers(id INT, sn Text, type Text, value Text, label Text, last_updated Text, History Text)"
+            request  = "CREATE TABLE registers(rid INT, sn Text, type_id Text, value Text, label Text, last_updated Text, History Text)"
             result = self.exec(request)
             if not len(result):
                 raise Exception("Failed to create registers table.")
@@ -146,29 +146,29 @@ Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT, las
         result = self.exec(request)
     
     def add_register(self, sn: str, regID: int, reg_type: RegisterType, label: str):
-        request: str = f"SELECT * from registers where id=\"{regID}\" and sn=\"{sn}\""
+        request: str = f"SELECT * from registers where rid=\"{regID}\" and sn=\"{sn}\""
         result = self.exec(request)
         if len(result):
             raise Exception(f"Register \"{regID}\" on device \"{sn}\" has been added before.")
 
-        request = f"INSERT INTO registers(id,sn,type,value,label) VALUES(\"{regID}\",\"{sn}\", \"{reg_type}\", \"00\", \"{label}\")"
+        request = f"INSERT INTO registers(rid,sn,type_id,value,label) VALUES(\"{regID}\",\"{sn}\", \"{reg_type}\", \"00\", \"{label}\")"
         result = self.exec(request)
         if not self.mycursor.rowcount > 0:
             raise Exception(f"Can not insert register \"{regID}\" on device \"{sn}\"")
 
     def remove_register(self, sn: str, regID: int):
-        request: str = f"SELECT * from registers where id=\"{regID}\" and sn=\"{sn}\""
+        request: str = f"SELECT * from registers where rid=\"{regID}\" and sn=\"{sn}\""
         result = self.exec(request)
         if len(result):
             raise Exception(f"Register \"{regID}\" not found on device \"{sn}\".")
 
-        request = f"DELETE FROM registers where id=\"{regID}\" and sn=\"{sn}\""
+        request = f"DELETE FROM registers where rid=\"{regID}\" and sn=\"{sn}\""
         result = self.exec(request)
         if not len(result):
             raise Exception(f"Can not remove register \"{regID}\" on device \"{sn}\".")
 
     def get_register(self, sn: str, regID: int):
-        request = f"SELECT * FROM registers where sn=\"{sn}\" AND id=\"{regID}\""
+        request = f"SELECT * FROM registers where sn=\"{sn}\" AND rid=\"{regID}\""
         result = self.exec(request);
         if len(result):
             reg = result[0]
@@ -177,7 +177,7 @@ Serial Text, label TEXT, owner TEXT, date_modified TEXT, date_assigned TEXT, las
         return None
 
     def set_register(self, sn: str, regID: int, value: str):
-        request = f"UPDATE registers SET value=\"{value}\",last_updated=\"{datetime.datetime.now()}\" WHERE sn=\"{sn}\" AND id=\"{regID}\""
+        request = f"UPDATE registers SET value=\"{value}\",last_updated=\"{datetime.datetime.now()}\" WHERE sn=\"{sn}\" AND rid=\"{regID}\""
         self.exec(request)
 
     def list_registers(self, sn: str):

@@ -1,9 +1,54 @@
 use rumqttc::{MqttOptions, AsyncClient, QoS, Event, Incoming, Publish};
 use std::time::Duration;
+use std::string::String;
 use tokio::io::Result;
 use bytes::Bytes;
-use mysql::*;
-use mysql::prelude::*;
+use diesel::prelude::*;
+use diesel::mysql::MysqlConnection;
+use mysql::Row;
+
+mod schema {
+    diesel::table! {
+        registers(rid) {
+            rid -> Integer,
+            sn -> Text,
+            type_id -> Text,
+            value -> Text,
+            label -> Text,
+            last_updated -> Text,
+            history -> Text,
+        }
+    }
+}
+
+use schema::registers;
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = registers)]
+pub struct Register<'a> {
+    rid: i32,
+    sn: &'a String,
+    type_id: &'a String,
+    value: &'a String,
+    label: &'a String,
+    last_updated: &'a String,
+    history: &'a String,
+}
+
+impl Register<'_>
+{
+    fn from_row<'a>(row: &'a Row) -> Register<'a> {
+        Register{
+            rid: row.get::<i32, &str>("rid").unwrap(),
+            sn: &String::from(row.get::<String, &str>("sn").unwrap()),
+            type_id: todo!(),
+            value: todo!(),
+            label: todo!(),
+            last_updated: todo!(),
+            history: todo!(),
+        }
+    }
+}
 
 fn on_registers(data: Bytes) {
     // Message should be like SN,RegID,DATA
@@ -49,8 +94,13 @@ async fn main() -> Result<()> {
     let (client, mut eventloop) = AsyncClient::new(mqtt_options, 1000);
     client.subscribe("registers", QoS::AtMostOnce).await.unwrap();
 
-    let url = "mysql://root:12345@localhost:3306/orhandb";
-    let pool = Pool::new(url)?;
+    let connection = &mut MysqlConnection::establish("mysql://root:12345@localhost/orhandb")
+        .unwrap_or_else(|_| panic!("Could not connect to server."));
+
+    let dev_registers: Vec<Register> = registers::table.load(connection).unwrap();
+    for register in dev_registers {
+        println!("RegID {}", register.rid);
+    }
 
     while let Ok(notif) = eventloop.poll().await {
         // This means if Event is Incomming and command is Publish, then handle message
